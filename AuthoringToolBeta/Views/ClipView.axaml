@@ -1,0 +1,25 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="200" d:DesignHeight="40"
+             
+             x:Class="AuthoringToolBeta.Views.ClipView"
+             xmlns:vm="using:AuthoringToolBeta.ViewModels"
+             x:DataType="vm:ClipViewModel">
+  <Border Background="#3B82F6" 
+          CornerRadius="4" 
+          Padding="8,0"
+          Margin="{Binding LeftMarginThickness}"
+          Height="40"
+          MinWidth="100"
+          VerticalAlignment="Center">
+    <TextBlock Name="ClipNameTextBlock"
+               Text="{Binding ClipItemName}"
+               Background="Transparent"
+               VerticalAlignment="Center"
+               HorizontalAlignment="Center"
+               PointerPressed="Clip_PointerPressed"
+               />
+  </Border>
+</UserControl>

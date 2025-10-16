@@ -1,0 +1,46 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:AuthoringToolBeta.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="AuthoringToolBeta.Views.MainWindow"
+             x:DataType="vm:MainWindowViewModel"
+             
+             xmlns:local="using:AuthoringToolBeta.Views"
+             >
+
+  <Grid RowDefinitions="Auto, *, Auto" ColumnDefinitions="200, *, 250">
+
+    <Border Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3"
+            Background="LightGray"
+            Height="30"
+            BorderBrush="Black" BorderThickness="1">
+        <TextBlock Text="メニューバーエリア" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+    </Border>
+
+    <ListBox Grid.Row="1" Grid.Column="0" ItemsSource="{Binding Assets}" Margin="5">
+        <ListBox.ItemTemplate>
+            <DataTemplate>
+                <TextBlock Text="{Binding}" Margin="5" PointerPressed="Asset_PointerPressed"/>
+            </DataTemplate>
+         </ListBox.ItemTemplate>
+    </ListBox>
+
+   <local:TimelineView Grid.Row="1" Grid.Column="1" />
+
+    <Border Grid.Row="1" Grid.Column="2"
+            Background="LightSteelBlue"
+            BorderBrush="Black" BorderThickness="1">
+        <TextBlock Text="プロパティエリア" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+    </Border>
+
+    <Border Grid.Row="2" Grid.Column="1"
+            Background="LightGray"
+            Height="25"
+            BorderBrush="Black" BorderThickness="1">
+        <TextBlock Text="ステータスバー" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+    </Border>
+
+</Grid>
+</UserControl>
