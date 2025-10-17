@@ -7,6 +7,7 @@ namespace AuthoringToolBeta.Event;
 
 public class DragDropEvent
 {
+    // ドラッグ開始時のイベント関数
     public async void PointerPressed(object? sender, PointerPressedEventArgs e)
     {
         // DraggedObject.GetType().FullName を使用して、フォーマット文字列を一意にします。

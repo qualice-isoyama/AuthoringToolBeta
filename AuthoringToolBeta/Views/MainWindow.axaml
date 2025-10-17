@@ -12,22 +12,36 @@
 
   <Grid RowDefinitions="Auto, *, Auto" ColumnDefinitions="200, *, 250">
 
-    <Border Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3"
-            Background="LightGray"
-            Height="30"
-            BorderBrush="Black" BorderThickness="1">
-        <TextBlock Text="メニューバーエリア" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-    </Border>
+      <Menu Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3">
+          <MenuItem Header="_File">
+              <MenuItem Header="_Open..." Command="{Binding OpenCommand}"/>
+              <MenuItem Header="_Save As..." Command="{Binding SaveCommand}"/>
+          </MenuItem>
+      </Menu>
 
     <ListBox Grid.Row="1" Grid.Column="0" ItemsSource="{Binding Assets}" Margin="5">
         <ListBox.ItemTemplate>
             <DataTemplate>
-                <TextBlock Text="{Binding}" Margin="5" PointerPressed="Asset_PointerPressed"/>
+                <TextBlock Text="{Binding Name}" Margin="5" 
+                           PointerPressed="Asset_PointerPressed"
+                           DragDrop.AllowDrop="True" DragDrop.DragEnter="Asset_Track_DragEnter" DragDrop.Drop="Asset_Track_Drop"/>
             </DataTemplate>
          </ListBox.ItemTemplate>
     </ListBox>
-
-   <local:TimelineView Grid.Row="1" Grid.Column="1" />
+      <Grid Row="1" Column="1" RowDefinitions="*, Auto">
+          <local:TimelineView Grid.Row="1" Grid.Column="0" DataContext="{Binding Timeline}"/>
+           <Border Grid.Row="0" Grid.Column="0"
+                   Background="DarkGray"
+                   BorderBrush="Black" BorderThickness="1">
+               <TextBlock Text="プリビズエリア" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+           </Border>
+          <Border Grid.Row="0" Grid.Column="0"
+                  Background="DarkGray"
+                  BorderBrush="Black" BorderThickness="1">
+              <TextBlock Text="{Binding  Test}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+          </Border>
+          
+      </Grid>
 
     <Border Grid.Row="1" Grid.Column="2"
             Background="LightSteelBlue"

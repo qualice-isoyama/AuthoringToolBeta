@@ -39,10 +39,8 @@ namespace AuthoringToolBeta.ViewModels
 
         public void SetClipPositionX(ClipViewModel clipViewModel, double positionX)
         {
-            var test1 = Clips[Clips.IndexOf(clipViewModel)].ClipItemPositionX;
             Clips[Clips.IndexOf(clipViewModel)].ClipItemPositionX = positionX;
             Clips[Clips.IndexOf(clipViewModel)].LeftMarginThickness = new Thickness(positionX, 0, 0, 0);
-            var test2 = Clips[Clips.IndexOf(clipViewModel)].ClipItemPositionX;
         }
     }
 }

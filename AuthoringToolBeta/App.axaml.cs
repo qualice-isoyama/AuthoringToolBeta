@@ -23,20 +23,29 @@ public partial class App : Application
             // Avoid duplicate validations from both Avalonia and the CommunityToolkit. 
             // More info: https://docs.avaloniaui.net/docs/guides/development-guides/data-validation#manage-validationplugins
             DisableAvaloniaDataAnnotationValidation();
-            desktop.MainWindow = new MainWindow
+            
+            // 1. MainWindowを先に生成し、インスタンスを取得
+            var mainWindow = new MainWindow();
+            // 2. Windowインスタンスを引数としてViewModelを生成（依存性の注入）
+            var viewModel = new MainWindowViewModel(mainWindow);
+            // 3. DataContextを設定
+            mainWindow.DataContext = viewModel;
+            // 4. デスクトップアプリケーションのメインウィンドウとして設定
+            desktop.MainWindow = mainWindow;
+            
+            /*desktop.MainWindow = new MainWindow
             {
                 DataContext = new MainWindowViewModel()
-            };
+            };*/
         }
         else if (ApplicationLifetime is ISingleViewApplicationLifetime singleViewPlatform)
         {
             singleViewPlatform.MainView = new MainWindow();
-
         }
-
         base.OnFrameworkInitializationCompleted();
     }
 
+    // Avaloniaのデータアノテーション検証プラグインを無効化
     private void DisableAvaloniaDataAnnotationValidation()
     {
         // Get an array of plugins to remove

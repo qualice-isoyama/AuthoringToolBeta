@@ -44,6 +44,13 @@ namespace AuthoringToolBeta.ViewModels
             get =>  _clipItemPositionX; 
             set =>  this.RaiseAndSetIfChanged(ref _clipItemPositionX, value);
         }
+        private double _clipItemWidth;
+
+        public double ClipItemWidth
+        {
+            get => _clipItemWidth;
+            set =>  this.RaiseAndSetIfChanged(ref _clipItemWidth, value);
+        }
         private Thickness _leftMarginThickness;
 
         public Thickness LeftMarginThickness
@@ -59,6 +66,7 @@ namespace AuthoringToolBeta.ViewModels
             this.ClipItemPath = model.AssetPath;
             this.ClipItemType = model.AssetType;
             this.ClipItemPositionX = model.PositionX;
+            this.ClipItemWidth  = model.Width;
             this.LeftMarginThickness = new Thickness(model.PositionX, 0, 0, 0);
         }
     }

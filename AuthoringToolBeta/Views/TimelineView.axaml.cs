@@ -5,21 +5,23 @@ using Avalonia.Markup.Xaml;
 using AuthoringToolBeta.ViewModels;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using AuthoringToolBeta.Model;
 
 namespace AuthoringToolBeta.Views;
 
 public partial class TimelineView : UserControl
 {
+    const string HierarchyViewModelFormat = "AuthoringToolBeta.ViewModels.HierarchyViewModel";
     public TimelineView()
     {
-        this.DataContext = new TimelineViewModel();
+        //this.DataContext = new TimelineViewModel();
         InitializeComponent();
         
     }
     private void Track_DragEnter(object? sender, DragEventArgs e)
     {
         // ドラッグされているデータがテキスト形式かを確認
-        if (e.Data.Contains(DataFormats.Text))
+        if (e.Data.Contains(HierarchyViewModelFormat))
         {
             // 受け入れ可能であることをカーソル形状で示す
             e.DragEffects = DragDropEffects.Copy;
@@ -40,12 +42,12 @@ public partial class TimelineView : UserControl
         if (viewModel == null) return;
 
         // 2. ドロップされたアセット名と位置を取得
-        if (e.Data.Get(DataFormats.Text) is string assetName && sender is Control track)
+        if (e.Data.Get(HierarchyViewModelFormat) is HierarchyModel asset && sender is Control track)
         {
             var dropPosition = e.GetPosition(track);
 
             // 3. UIを直接操作せず、ViewModelにクリップの追加を「依頼」する
-            viewModel.AddClip(assetName, "","",dropPosition.X);
+            viewModel.AddClip(asset.Name, "","",dropPosition.X);
         }
 
         // タイムライン上のクリップを移動させた場合
