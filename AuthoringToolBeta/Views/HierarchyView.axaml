@@ -1,0 +1,19 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             
+             x:Class="AuthoringToolBeta.HierarchyView"
+             xmlns:vm="using:AuthoringToolBeta.ViewModels"
+             x:DataType="vm:HierarchyViewModel">
+    <ListBox ItemsSource="{Binding Hierarchy}" Margin="5">
+        <ListBox.ItemTemplate>
+            <DataTemplate>
+                <TextBlock Text="{Binding HModel.Name}" Margin="5" 
+                           PointerPressed="Asset_PointerPressed"
+                           DragDrop.AllowDrop="True" DragDrop.DragEnter="Asset_Track_DragEnter" DragDrop.Drop="Asset_Track_Drop"/>
+            </DataTemplate>
+        </ListBox.ItemTemplate>
+    </ListBox>
+</UserControl>

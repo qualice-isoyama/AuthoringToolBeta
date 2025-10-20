@@ -16,6 +16,7 @@
           <MenuItem Header="_File">
               <MenuItem Header="_Open..." Command="{Binding OpenCommand}"/>
               <MenuItem Header="_Save As..." Command="{Binding SaveCommand}"/>
+              <MenuItem Header="_Open TestWindow" Command="{Binding OpenTestWindow}"/>
           </MenuItem>
       </Menu>
 
@@ -28,12 +29,12 @@
             </DataTemplate>
          </ListBox.ItemTemplate>
     </ListBox>
-      <Grid Row="1" Column="1" RowDefinitions="*, Auto">
+    <Grid Grid.Row="1" Grid.Column="1" RowDefinitions="*, Auto">
           <local:TimelineView Grid.Row="1" Grid.Column="0" DataContext="{Binding Timeline}"/>
            <Border Grid.Row="0" Grid.Column="0"
                    Background="DarkGray"
                    BorderBrush="Black" BorderThickness="1">
-               <TextBlock Text="プリビズエリア" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+               <ItemsControl ItemsSource="{Binding }"></ItemsControl>
            </Border>
           <Border Grid.Row="0" Grid.Column="0"
                   Background="DarkGray"

@@ -1,22 +1,19 @@
-using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
-using Avalonia.Markup.Xaml;
-using AuthoringToolBeta.ViewModels;
-using System.Collections.ObjectModel;
-using System.Diagnostics;
 using AuthoringToolBeta.Model;
+using AuthoringToolBeta.ViewModels;
+using Avalonia.Remote.Protocol.Input;
+using Avalonia.Threading;
 
 namespace AuthoringToolBeta.Views;
 
 public partial class TimelineView : UserControl
 {
     const string HierarchyViewModelFormat = "AuthoringToolBeta.ViewModels.HierarchyViewModel";
+    const string dragDataFormat = "AuthoringToolBeta.ViewModels.ClipViewModel";
     public TimelineView()
     {
-        //this.DataContext = new TimelineViewModel();
         InitializeComponent();
-        
     }
     private void Track_DragEnter(object? sender, DragEventArgs e)
     {
@@ -35,10 +32,8 @@ public partial class TimelineView : UserControl
 
     private void Track_Drop(object? sender, DragEventArgs e)
     {
-        // DraggedObject.GetType().FullName を使用して、フォーマット文字列を一意にします。
-        const string dragDataFormat = "AuthoringToolBeta.ViewModels.ClipViewModel";
         // 1. このViewのDataContextであるViewModelを取得
-        var viewModel = this.DataContext as TimelineViewModel;
+        var viewModel = DataContext as TimelineViewModel;
         if (viewModel == null) return;
 
         // 2. ドロップされたアセット名と位置を取得
@@ -46,8 +41,19 @@ public partial class TimelineView : UserControl
         {
             var dropPosition = e.GetPosition(track);
 
-            // 3. UIを直接操作せず、ViewModelにクリップの追加を「依頼」する
-            viewModel.AddClip(asset.Name, "","",dropPosition.X);
+            if (sender is Border border && border.Name == "Track1")
+            {
+                // 3. UIを直接操作せず、ViewModelにクリップの追加を「依頼」する
+                viewModel.AddClip(asset.Name, "", "", dropPosition.X,dropPosition.X / 100, 2, 1);
+            }
+            else if (sender is Border border2 && border2.Name == "Track2")
+            {
+                viewModel.AddClip(asset.Name, "", "", dropPosition.X,dropPosition.X / 100, 2, 2);
+            }
+            else if (sender is Border border3 && border3.Name == "Track3")
+            {
+                viewModel.AddClip(asset.Name, "", "", dropPosition.X,dropPosition.X / 100, 2, 2);
+            }
         }
 
         // タイムライン上のクリップを移動させた場合
@@ -57,6 +63,31 @@ public partial class TimelineView : UserControl
 
             // 3. UIを直接操作せず、ViewModelにクリップの追加を「依頼」する
             viewModel.SetClipPositionX(currClip, dropPosition.X);
+        }
+    }
+
+    private void Track_DragOver(object? sender, DragEventArgs e)
+    {
+        if (DataContext is TimelineViewModel vm && vm.SelectedClip is ClipViewModel cvm && sender is Border track )
+        {
+            Dispatcher.UIThread.RunJobs(DispatcherPriority.Input);
+            cvm.ClipItemPositionX = e.GetPosition(track).X;
+            Dispatcher.UIThread.InvokeAsync(() =>
+            {
+                cvm.ClipItemPositionX = e.GetPosition(track).X;
+            },DispatcherPriority.Input);
+        }
+    }
+    private void Track_DragOverByPointer(object? sender, PointerEventArgs e)
+    {
+        if (DataContext is TimelineViewModel vm && vm.SelectedClip is ClipViewModel cvm && sender is Border track )
+        {
+            Dispatcher.UIThread.RunJobs(DispatcherPriority.Input);
+            cvm.ClipItemPositionX = e.GetPosition(track).X;
+            Dispatcher.UIThread.InvokeAsync(() =>
+            {
+                cvm.ClipItemPositionX = e.GetPosition(track).X;
+            },DispatcherPriority.MaxValue);
         }
     }
 }

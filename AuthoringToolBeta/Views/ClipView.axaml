@@ -5,21 +5,28 @@
              mc:Ignorable="d" d:DesignWidth="200" d:DesignHeight="40"
              
              x:Class="AuthoringToolBeta.Views.ClipView"
+             xmlns:c="using:AuthoringToolBeta.Converters"
              xmlns:vm="using:AuthoringToolBeta.ViewModels"
-             x:DataType="vm:ClipViewModel">
-  <Border Background="#3B82F6" 
-          CornerRadius="4" 
-          Padding="8,0"
-          Margin="{Binding LeftMarginThickness}"
-          Height="40"
-          MinWidth="100"
-          VerticalAlignment="Center">
-    <TextBlock Name="ClipNameTextBlock"
-               Text="{Binding ClipItemName}"
-               Background="Transparent"
-               VerticalAlignment="Center"
-               HorizontalAlignment="Center"
-               PointerPressed="Clip_PointerPressed"
-               />
-  </Border>
+             x:DataType="vm:ClipViewModel"
+             x:Name="ClipViewRoot">
+    <UserControl.Resources>
+        <c:TimeSpanToPixelConverter x:Key="TimeSpanToPixelConverter" />
+    </UserControl.Resources>
+
+    <Border Background="#3B82F6" 
+            CornerRadius="4" 
+            Padding="8,0"
+            Margin="{Binding LeftMarginThickness}"
+            Height="40"
+            MinWidth="100"
+            Width="{Binding ClipItemWidth}"
+            VerticalAlignment="Center">
+        <TextBlock Name="ClipNameTextBlock"
+                   Text="{Binding ClipItemName}"
+                   Background="Transparent"
+                   VerticalAlignment="Center"
+                   HorizontalAlignment="Center"
+                   PointerPressed="Clip_PointerPressed"
+        />
+    </Border>
 </UserControl>

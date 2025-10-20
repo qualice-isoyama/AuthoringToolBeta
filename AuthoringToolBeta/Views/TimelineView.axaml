@@ -6,24 +6,46 @@
              xmlns:local="using:AuthoringToolBeta.Views"
 
              x:Class="AuthoringToolBeta.Views.TimelineView"
+             xmlns:v="using:AuthoringToolBeta.Views"
              xmlns:vm="using:AuthoringToolBeta.ViewModels"
-             x:DataType="vm:TimelineViewModel">
-
-  <Border BorderBrush="Gray" BorderThickness="1">
+             xmlns:c="using:AuthoringToolBeta.Converters"
+             x:DataType="vm:TimelineViewModel"
+             x:Name="ThisTimelineView">
+    <UserControl.Resources>
+        <c:TimeSpanToPixelConverter x:Key="TimeSpanToPixelConverter" />
+    </UserControl.Resources>
+    <Grid RowDefinitions="Auto,Auto">
+        <Border BorderBrush="Gray" BorderThickness="1">
     <Grid RowDefinitions="Auto, *">
 
-      <Border Grid.Row="0" Background="#333333" Height="30">
-        <TextBlock Text="00:00:00          00:00:01          00:00:02          00:00:03"
-                   Foreground="White"
-                   VerticalAlignment="Center"
-                   Margin="10,0"/>
-      </Border>
+      
 
-      <ScrollViewer Grid.Row="1">
+      <ScrollViewer Grid.Row="0" HorizontalScrollBarVisibility="Visible">
         <StackPanel>
-          <Border Height="50" Background="#555555" BorderBrush="#444444" BorderThickness="0,0,0,1"
-                DragDrop.AllowDrop="True" DragDrop.DragEnter="Track_DragEnter" DragDrop.Drop="Track_Drop">
-            <ItemsControl ItemsSource="{Binding Clips}">
+            <Border Background="#333333" Height="30">
+                <ItemsControl ItemsSource="{Binding TimeMarkers}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Horizontal" ></StackPanel>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Margin="{Binding Scaleint}">
+                                <TextBlock Text="{Binding FormattedTime}"
+                                           Foreground="White"
+                                           VerticalAlignment="Center"
+                                           
+                                           Width="{Binding ScaleInterval}">
+                                </TextBlock>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </Border>
+            <Border x:Name="Track1" Height="50" Background="#555555" BorderBrush="#444444" BorderThickness="0,0,0,1" Width="{Binding TotalWidth}"
+                    DragDrop.AllowDrop="True" DragDrop.DragEnter="Track_DragEnter" DragDrop.Drop="Track_Drop" DragDrop.DragOver="Track_DragOver">
+            <ItemsControl ItemsSource="{Binding Clips}" >
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
                         <local:ClipView />
@@ -38,23 +60,50 @@
 
             </ItemsControl>
           </Border>
+            <Border x:Name="Track2" Height="50" Background="#555555" BorderBrush="#444444" BorderThickness="0,0,0,1" Width="{Binding TotalWidth}"
+                    DragDrop.AllowDrop="True" DragDrop.DragEnter="Track_DragEnter" DragDrop.Drop="Track_Drop" DragDrop.DragOver="Track_DragOver">
+                <ItemsControl ItemsSource="{Binding Clips2}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <local:ClipView />
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+        
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <Canvas />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
 
-          <Border Height="50" Background="#555555" BorderBrush="#444444" BorderThickness="0,0,0,1"
-                  DragDrop.AllowDrop="True" DragDrop.DragEnter="Track_DragEnter" DragDrop.Drop="Track_Drop">
-             <Canvas>
-                <TextBlock Text="音声トラック 1" Foreground="White" VerticalAlignment="Center" Margin="10,0"/>
-             </Canvas>
-          </Border>
+                </ItemsControl>
+            </Border>
           
-          <Border Height="50" Background="#555555" BorderBrush="#444444" BorderThickness="0,0,0,1"
-                  DragDrop.AllowDrop="True" DragDrop.DragEnter="Track_DragEnter" DragDrop.Drop="Track_Drop">
-              <Canvas>
-                <TextBlock Text="テロップトラック 1" Foreground="White" VerticalAlignment="Center" Margin="10,0"/>
-              </Canvas>
-          </Border>
+            <Border x:Name="Track3" Height="50" Background="#555555" BorderBrush="#444444" BorderThickness="0,0,0,1" Width="{Binding TotalWidth}"
+                    DragDrop.AllowDrop="True" DragDrop.DragEnter="Track_DragEnter" DragDrop.Drop="Track_Drop" DragDrop.DragOver="Track_DragOver">
+                <ItemsControl ItemsSource="{Binding Clips3}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <local:ClipView />
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+        
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <Canvas />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+
+                </ItemsControl>
+            </Border>
         </StackPanel>
       </ScrollViewer>
 
     </Grid>
   </Border>
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="5" Margin="5">
+            <TextBlock Text="Zoom:" VerticalAlignment="Center"/>
+            <Button Content="-" Command="{Binding ZoomOutCommand}"/>
+            <Button Content="+" Command="{Binding ZoomInCommand}"/>
+        </StackPanel>
+    </Grid>
 </UserControl>

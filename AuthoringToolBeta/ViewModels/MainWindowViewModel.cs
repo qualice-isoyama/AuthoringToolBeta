@@ -1,13 +1,16 @@
-﻿using System.Threading.Tasks;
-using System.Windows.Input;
+﻿using AuthoringToolBeta.Commands;
+using AuthoringToolBeta.Model;
+using AuthoringToolBeta.Services;
+using AuthoringToolBeta.Views;
+using Avalonia.Controls;
+using DynamicData.Tests;
 using ReactiveUI;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using Avalonia.Controls;
-using AuthoringToolBeta.Model;
-using AuthoringToolBeta.Commands;
-using AuthoringToolBeta.Services;
-using DynamicData.Tests;
+using System.Reactive;
+using System.Threading.Tasks;
+using System.Windows.Input;
 
 namespace AuthoringToolBeta.ViewModels
 {
@@ -25,6 +28,7 @@ namespace AuthoringToolBeta.ViewModels
         public TimelineViewModel Timeline { get; }
         public ICommand SaveCommand { get; }
         public ICommand OpenCommand { get; }
+        public ReactiveCommand<Unit, Unit> OpenTestWindow { get; }
         private readonly Window _owner;
         private readonly ProjectService _projectService;
 
@@ -109,6 +113,19 @@ namespace AuthoringToolBeta.ViewModels
             // ...
             SaveCommand = new MyAsyncRelayCommand(_ => ExecuteSave());
             OpenCommand = new MyAsyncRelayCommand(_ => ExecuteOpen());
+            //OpenTestWindow = ReactiveCommand.Create(() =>
+            //{
+            //    try
+            //    {
+            //        var testWindowVM = new TestWindowViewModel();
+            //        var testWindow = new TestView {DataContext = testWindowVM};
+            //        testWindow.Show();
+            //    }
+            //    catch (Exception ex)
+            //    {
+            //        System.Diagnostics.Debug.WriteLine($"ウィンドウ起動エラー: {ex.Message}");
+            //    }
+            //},outputScheduler: RxApp.MainThreadScheduler);
 
         }
 
@@ -120,6 +137,16 @@ namespace AuthoringToolBeta.ViewModels
         private async Task ExecuteOpen()
         {
             await _projectService.LoadProjectAsync(this.Timeline, _owner.StorageProvider);
+        }
+
+        public void exchangePosHierarchyItem(ObservableCollection<HierarchyModel> HierarchyInp,HierarchyModel exchangeFromHM, HierarchyModel exchangeToHM)
+        {
+            int exchangeFromIdx = HierarchyInp.IndexOf(exchangeFromHM);
+            
+            int exchangeToIdx = HierarchyInp.IndexOf(exchangeToHM);
+            HierarchyInp[exchangeFromIdx] = exchangeToHM;
+            HierarchyInp[exchangeToIdx] = exchangeFromHM;
+        
         }
     }
 }

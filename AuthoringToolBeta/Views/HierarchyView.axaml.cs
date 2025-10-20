@@ -1,36 +1,19 @@
+using Avalonia.Controls;
 using AuthoringToolBeta.Model;
 using Avalonia.Input;
-using Avalonia.Controls;
 using AuthoringToolBeta.ViewModels;
 
-namespace AuthoringToolBeta.Views;
+namespace AuthoringToolBeta;
 
-public partial class MainWindow : Window
+public partial class HierarchyView : UserControl
 {
     const string HierarchyViewModelFormat = "AuthoringToolBeta.ViewModels.HierarchyViewModel";
-    public MainWindow()
+    public HierarchyView()
     {
         InitializeComponent();
-        // ViewModel‚ÌƒCƒ“ƒXƒ^ƒ“ƒX‚ğì¬‚µADataContext‚Éİ’è
-        this.DataContext = new MainWindowViewModel(this);
     }
     private async void Asset_PointerPressed(object? sender, PointerPressedEventArgs e)
     {
-        // ƒCƒxƒ“ƒg‚Ì”­¶Œ¹iTextBlockj‚ğæ“¾
-        /*if (sender is TextBlock textBlock)
-        {
-            // TextBlock‚É•\¦‚³‚ê‚Ä‚¢‚éƒAƒZƒbƒg–¼iƒf[ƒ^j‚ğæ“¾
-            var asset = textBlock.DataContext as HierarchyModel;
-            if (asset != null)
-            {
-                // ƒhƒ‰ƒbƒO•ƒhƒƒbƒv‘€ì‚ğŠJn
-                var dragData = new DataObject();
-                dragData.Set(DataFormats.Text, asset); // ƒhƒ‰ƒbƒO‚·‚éƒf[ƒ^‚ğİ’è
-
-                // DoDragDrop‘€ì‚ğŠJn
-                await DragDrop.DoDragDrop(e, dragData, DragDropEffects.Copy);
-            }
-        }*/
         if (sender is TextBlock textBlock)
         {
             var hierarchyItem = textBlock.DataContext as HierarchyModel;
@@ -44,10 +27,10 @@ public partial class MainWindow : Window
     }
     private void Asset_Track_DragEnter(object? sender, DragEventArgs e)
     {
-        // ƒhƒ‰ƒbƒO‚³‚ê‚Ä‚¢‚éƒf[ƒ^‚ªƒeƒLƒXƒgŒ`®‚©‚ğŠm”F
+        // ãƒ‰ãƒ©ãƒƒã‚°ã•ã‚Œã¦ã„ã‚‹ãƒ‡ãƒ¼ã‚¿ãŒãƒ†ã‚­ã‚¹ãƒˆå½¢å¼ã‹ã‚’ç¢ºèª
         if (e.Data.Contains(DataFormats.Text))
         {
-            // ó‚¯“ü‚ê‰Â”\‚Å‚ ‚é‚±‚Æ‚ğƒJ[ƒ\ƒ‹Œ`ó‚Å¦‚·
+            // å—ã‘å…¥ã‚Œå¯èƒ½ã§ã‚ã‚‹ã“ã¨ã‚’ã‚«ãƒ¼ã‚½ãƒ«å½¢çŠ¶ã§ç¤ºã™
             e.DragEffects = DragDropEffects.Copy;
         }
         else if (e.Data.Contains(HierarchyViewModelFormat))
@@ -56,23 +39,23 @@ public partial class MainWindow : Window
         }
         else
         {
-            // ó‚¯“ü‚ê•s‰Â‚Å‚ ‚é‚±‚Æ‚ğ¦‚·
+            // å—ã‘å…¥ã‚Œä¸å¯ã§ã‚ã‚‹ã“ã¨ã‚’ç¤ºã™
             e.DragEffects = DragDropEffects.None;
         }
     }
 
     private void Asset_Track_Drop(object? sender, DragEventArgs e)
     {
-        // DraggedObject.GetType().FullName ‚ğg—p‚µ‚ÄAƒtƒH[ƒ}ƒbƒg•¶š—ñ‚ğˆêˆÓ‚É‚µ‚Ü‚·B
+        // DraggedObject.GetType().FullName ã‚’ä½¿ç”¨ã—ã¦ã€ãƒ•ã‚©ãƒ¼ãƒãƒƒãƒˆæ–‡å­—åˆ—ã‚’ä¸€æ„ã«ã—ã¾ã™ã€‚
         
-        // 1. ‚±‚ÌView‚ÌDataContext‚Å‚ ‚éViewModel‚ğæ“¾
+        // 1. ã“ã®Viewã®DataContextã§ã‚ã‚‹ViewModelã‚’å–å¾—
         var viewModel = this.DataContext as MainWindowViewModel;
         if (viewModel == null) return;
         
-        // ‚±‚ÌƒIƒuƒWƒFƒNƒg‚Ìã‚Åƒhƒƒbƒv‚³‚ê‚½‚Æ‚«
+        // ã“ã®ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®ä¸Šã§ãƒ‰ãƒ­ãƒƒãƒ—ã•ã‚ŒãŸã¨ã
         if (e.Data.Get(HierarchyViewModelFormat) is HierarchyModel movefrom && sender is TextBlock textBlock)
         {
-            // ˆÊ’u“ü‚ê‘Ö‚¦ˆ—
+            // ä½ç½®å…¥ã‚Œæ›¿ãˆå‡¦ç†
             var tmpSender = sender as TextBlock;
             var moveTo = tmpSender.DataContext as HierarchyModel;
             viewModel.Test =  movefrom.Name + "\n" + moveTo.Name;

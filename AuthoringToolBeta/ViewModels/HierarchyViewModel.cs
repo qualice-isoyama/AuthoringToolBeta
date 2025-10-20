@@ -1,15 +1,19 @@
-﻿using AuthoringToolBeta.Model;
-using ReactiveUI;
+﻿using System.Collections.ObjectModel;
+using AuthoringToolBeta.Model;
+
 
 namespace AuthoringToolBeta.ViewModels;
 
-public class HierarchyViewModel: ReactiveObject
+public class HierarchyViewModel
 {
-    private HierarchyModel _hmodel;
+    public ObservableCollection<HierarchyItemViewModel> Hierarchy { get; }
 
-    public HierarchyModel Hmodel
+    public void exchangePosHierarchyItem(HierarchyItemViewModel exchangeFromHM, HierarchyItemViewModel exchangeToHM)
     {
-        get => _hmodel; 
-        set => this.RaiseAndSetIfChanged(ref _hmodel, value);
+        int exchangeFromIdx = Hierarchy.IndexOf(exchangeFromHM);
+        int exchangeToIdx = Hierarchy.IndexOf(exchangeToHM);
+        Hierarchy[exchangeFromIdx] = exchangeToHM;
+        Hierarchy[exchangeToIdx] = exchangeFromHM;
+        
     }
 }

@@ -23,14 +23,7 @@ public class ProjectService
         if (file is null) return; // キャンセルされた
 
         // 2. ViewModelからModelのリストに変換
-        var clipModels = timelineViewModel.Clips.Select(vm => new ClipModel
-        {
-            AssetName = vm.ClipItemName,
-            AssetPath = vm.ClipItemPath,
-            AssetType = vm.ClipItemType,
-            PositionX = vm.ClipItemPositionX,
-            Width = vm.ClipItemWidth,
-        }).ToList();
+        var clipModels = timelineViewModel.Clips.Select(vm => vm.ToModel()).ToList();
         
         // 3. JSONにシリアライズ
         var jsonString = JsonSerializer.Serialize(clipModels, new JsonSerializerOptions { WriteIndented = true });

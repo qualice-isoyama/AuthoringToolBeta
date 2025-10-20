@@ -28,7 +28,7 @@
       <DependentUpon>TimelineView.axaml</DependentUpon>
     </Compile>
     <Compile Update="Views\ClipView.axaml.cs">
-      <DependentUpon>ClipView.axaml</DependentUpon>
+      <DependentUpon>Hierarchy.axaml</DependentUpon>
     </Compile>
   </ItemGroup>
 </Project>
