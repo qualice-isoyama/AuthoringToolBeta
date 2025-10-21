@@ -14,96 +14,130 @@
     <UserControl.Resources>
         <c:TimeSpanToPixelConverter x:Key="TimeSpanToPixelConverter" />
     </UserControl.Resources>
-    <Grid RowDefinitions="Auto,Auto">
-        <Border BorderBrush="Gray" BorderThickness="1">
-    <Grid RowDefinitions="Auto, *">
-
-      
-
-      <ScrollViewer Grid.Row="0" HorizontalScrollBarVisibility="Visible">
-        <StackPanel>
-            <Border Background="#333333" Height="30">
-                <ItemsControl ItemsSource="{Binding TimeMarkers}">
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <StackPanel Orientation="Horizontal" ></StackPanel>
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <Border Margin="{Binding Scaleint}">
-                                <TextBlock Text="{Binding FormattedTime}"
-                                           Foreground="White"
-                                           VerticalAlignment="Center"
-                                           
-                                           Width="{Binding ScaleInterval}">
-                                </TextBlock>
+    <Grid RowDefinitions="*,Auto">
+        <Border Grid.Row="0" BorderBrush="#333333"  >
+                <ScrollViewer  HorizontalScrollBarVisibility="Visible">
+                    <Grid ColumnDefinitions="Auto,*">
+                        <StackPanel Grid.Column="0" Orientation="Horizontal">
+                            <Border  BorderBrush="#333333" BorderThickness="1">
+                                <StackPanel >
+                                    <Border Background="Transparent" Height="30"/>
+                                    <ListBox DataContext="{Binding TimelineHierarchyVM}" ItemsSource="{Binding timelineHierarchy}" Margin="5"
+                                             Background="Transparent" BorderThickness="0,0,0,1">
+                                        <ListBox.ItemTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding Name}" Margin="5"/>
+                                            </DataTemplate>
+                                        </ListBox.ItemTemplate>
+                                    </ListBox>
+                                </StackPanel>
                             </Border>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
-            </Border>
-            <Border x:Name="Track1" Height="50" Background="#555555" BorderBrush="#444444" BorderThickness="0,0,0,1" Width="{Binding TotalWidth}"
-                    DragDrop.AllowDrop="True" DragDrop.DragEnter="Track_DragEnter" DragDrop.Drop="Track_Drop" DragDrop.DragOver="Track_DragOver">
-            <ItemsControl ItemsSource="{Binding Clips}" >
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <local:ClipView />
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-        
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <Canvas />
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
+                        </StackPanel>
+                        
+                        <Grid Grid.Column="1">
+                            <StackPanel >
+                                <Border Background="#333333" Height="30" >
+                                    <ItemsControl ItemsSource="{Binding TimeMarkers}">
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <StackPanel  Orientation="Horizontal" PointerPressed="PlayerHead_PointerPressed"/>
+                                            </ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Border Margin="{Binding Scaleint}">
+                                                    <TextBlock Text="{Binding FormattedTime}"
+                                                           Foreground="White"
+                                                           VerticalAlignment="Center"
+                                                           Width="{Binding ScaleInterval}"
+                                                           >
+                                                    </TextBlock>
+                                                </Border>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </Border>
+                                
+                                <Border x:Name="Track1" Height="50" Background="#555555" BorderBrush="#444444" BorderThickness="0,0,0,1" Width="{Binding TotalWidth}"
+                                        DragDrop.AllowDrop="True" DragDrop.DragEnter="Track_DragEnter" DragDrop.Drop="Track_Drop" DragDrop.DragOver="Track_DragOver"
+                                        >
+                                    
+                                    <ItemsControl ItemsSource="{Binding Clips}" >
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <local:ClipView PointerPressed="ClipPointerPressed"/>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <Canvas />
+                                            </ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
 
-            </ItemsControl>
-          </Border>
-            <Border x:Name="Track2" Height="50" Background="#555555" BorderBrush="#444444" BorderThickness="0,0,0,1" Width="{Binding TotalWidth}"
-                    DragDrop.AllowDrop="True" DragDrop.DragEnter="Track_DragEnter" DragDrop.Drop="Track_Drop" DragDrop.DragOver="Track_DragOver">
-                <ItemsControl ItemsSource="{Binding Clips2}">
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <local:ClipView />
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-        
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <Canvas />
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
+                                    </ItemsControl>
+                                    
+                                </Border>
+                                <Border x:Name="Track2" Height="50" Background="#555555" BorderBrush="#444444" BorderThickness="0,0,0,1" Width="{Binding TotalWidth}"
+                                        DragDrop.AllowDrop="True" DragDrop.DragEnter="Track_DragEnter" DragDrop.Drop="Track_Drop" DragDrop.DragOver="Track_DragOver">
+                                    <ItemsControl ItemsSource="{Binding Clips2}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <local:ClipView />
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <Canvas />
+                                            </ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
 
-                </ItemsControl>
-            </Border>
-          
-            <Border x:Name="Track3" Height="50" Background="#555555" BorderBrush="#444444" BorderThickness="0,0,0,1" Width="{Binding TotalWidth}"
-                    DragDrop.AllowDrop="True" DragDrop.DragEnter="Track_DragEnter" DragDrop.Drop="Track_Drop" DragDrop.DragOver="Track_DragOver">
-                <ItemsControl ItemsSource="{Binding Clips3}">
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <local:ClipView />
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-        
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <Canvas />
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
+                                    </ItemsControl>
+                                </Border>
+                  
+                                <Border x:Name="Track3" Height="50" Background="#555555" BorderBrush="#444444" BorderThickness="0,0,0,1" Width="{Binding TotalWidth}"
+                                        DragDrop.AllowDrop="True" DragDrop.DragEnter="Track_DragEnter" DragDrop.Drop="Track_Drop" DragDrop.DragOver="Track_DragOver">
+                                    <ItemsControl ItemsSource="{Binding Clips3}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <local:ClipView />
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <Canvas />
+                                            </ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
 
-                </ItemsControl>
-            </Border>
-        </StackPanel>
-      </ScrollViewer>
+                                    </ItemsControl>
+                                </Border>
 
-    </Grid>
-  </Border>
+                            </StackPanel>
+                            <Canvas  >
+                                <Rectangle Fill="Red" Width="2" Height="180" IsHitTestVisible="False">
+                                    <Canvas.Left>
+                                        <MultiBinding Converter="{StaticResource TimeSpanToPixelConverter}">
+                                            <Binding Path="CurrentTime"/>
+                                            <Binding Path="Scale"/>
+                                        </MultiBinding>
+                                    </Canvas.Left>
+                                </Rectangle>
+                            </Canvas>
+                        </Grid>
+                    </Grid>
+                </ScrollViewer>
+        </Border>
         <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="5" Margin="5">
             <TextBlock Text="Zoom:" VerticalAlignment="Center"/>
             <Button Content="-" Command="{Binding ZoomOutCommand}"/>
             <Button Content="+" Command="{Binding ZoomInCommand}"/>
+            <Separator Margin="5,0"/>
+            <Button Content="⏪" Command="{Binding GoToStartCommand}"/>
+            <Button Content="▶" Command="{Binding PlayCommand}"/>
+            <Button Content="■" Command="{Binding StopCommand}"/>
+            <Button Content="⏩" Command="{Binding GoToEndCommand}"/>
         </StackPanel>
     </Grid>
 </UserControl>

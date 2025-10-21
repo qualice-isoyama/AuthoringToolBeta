@@ -7,7 +7,7 @@ using System.Linq;
 using AuthoringToolBeta.Model;
 using AuthoringToolBeta.ViewModels;
 using AuthoringToolBeta.ViewModels.Base;
-
+using Avalonia.Threading;
 
 
 namespace AuthoringToolBeta.ViewModels
@@ -18,11 +18,29 @@ namespace AuthoringToolBeta.ViewModels
         
         public ICommand ZoomInCommand { get; }
         public ICommand ZoomOutCommand { get; }
+        public ICommand PlayCommand { get; }
+        public ICommand StopCommand { get; }
+        public ICommand GoToStartCommand { get; } 
+        public ICommand GoToEndCommand { get; } 
         public ObservableCollection<ClipViewModel> Clips { get; } = new();
         public ObservableCollection<ClipViewModel> Clips2 { get; } = new();
         public ObservableCollection<ClipViewModel> Clips3 { get; } = new();
         public ObservableCollection<ObservableCollection<ClipViewModel>> Tracks { get; } = new();
         public ObservableCollection<TimeMarkerViewModel> TimeMarkers { get; } = new ();
+        private TimelineHierarchyViewModel _timelineHierarchyVM;
+
+        public TimelineHierarchyViewModel TimelineHierarchyVM
+        {
+            get => _timelineHierarchyVM;
+            set
+            {
+                if (_timelineHierarchyVM != value)
+                {
+                    _timelineHierarchyVM = value;
+                    OnPropertyChanged(); 
+                }
+            }
+        }
         private ClipViewModel? _selectedClip;
         public ClipViewModel? SelectedClip
         {
@@ -32,7 +50,7 @@ namespace AuthoringToolBeta.ViewModels
                 if (_selectedClip != value)
                 {
                     _selectedClip = value;
-                    //OnPropertyChanged(); // "SelectedClip" プロパティが変更されたことをUIに通知
+                    OnPropertyChanged(); 
                 }
             }
         }
@@ -46,15 +64,35 @@ namespace AuthoringToolBeta.ViewModels
             {
                 _scale = value;
                 OnPropertyChanged();
-            
-                // Scaleが変わったら、それに依存する計算結果も変わったことを通知する
-                // (これは次のステップで使います)
                 OnPropertyChanged(nameof(TotalWidth)); 
             }
         }
 
-        
-        
+        private double currentTime;
+
+        public double CurrentTime
+        {
+            get => currentTime;
+            set
+            {
+                currentTime = value;
+                OnPropertyChanged();
+            }
+        }
+        private readonly DispatcherTimer _timer;
+        private bool _isPlaying;
+
+        public bool IsPlaying
+        {
+            get => _isPlaying;
+            set
+            {
+                _isPlaying = value;
+                OnPropertyChanged();
+            }
+        }
+
+
         public TimelineViewModel()
         {
             ZoomInCommand = new RelayCommand(_ => ZoomIn());
@@ -64,13 +102,24 @@ namespace AuthoringToolBeta.ViewModels
                 "DEFOeffect99.png",
                 "source/DEFOeffect99.png",
                 "image/png",
-                300,
-                100,
+                3 * Scale,
+                2 * Scale,
                 3,
                 2
             ),this));
             Tracks.Add(Clips);
             GenerateMarkers(TimeSpan.FromMinutes(1));
+            TimelineHierarchyVM = new TimelineHierarchyViewModel();
+            // タイマーの初期化
+            _timer = new DispatcherTimer
+            {
+                Interval = TimeSpan.FromMilliseconds(16)
+            };
+            _timer.Tick += OnTimerTick;
+            PlayCommand = new RelayCommand(_ => Play());
+            StopCommand = new RelayCommand(_ => Stop());
+            GoToStartCommand = new RelayCommand(_ => GoToStart());
+            GoToEndCommand = new RelayCommand(_ => GoToEnd());
         }
 
         // ドロップ操作に応じて新しいクリップを追加するメソッド
@@ -81,8 +130,8 @@ namespace AuthoringToolBeta.ViewModels
                 assetName,
                 assetPath,
                 assetType,
-                positionX,
-                duration * Scale, // 仮の幅
+                startTime * Scale,
+                duration * Scale,
                 startTime,
                 duration
             ),this);
@@ -99,7 +148,7 @@ namespace AuthoringToolBeta.ViewModels
 
         public void SetClipPositionX(ClipViewModel clipViewModel, double positionX)
         {
-            Clips[Clips.IndexOf(clipViewModel)].StartTime = positionX / 100;
+            Clips[Clips.IndexOf(clipViewModel)].StartTime = positionX / Scale;
             Clips[Clips.IndexOf(clipViewModel)].ClipItemPositionX = positionX;
             Clips[Clips.IndexOf(clipViewModel)].LeftMarginThickness = new Thickness(positionX, 0, 0, 0);
         }
@@ -137,6 +186,52 @@ namespace AuthoringToolBeta.ViewModels
             {
                 marker.ScaleInterval = Scale;
             }
+        }
+        private void Play()
+        {
+            // 既に再生中でなければ、再生を開始する
+            if (!IsPlaying)
+            {
+                IsPlaying = true;
+                _timer.Start();
+            }
+        }
+
+        private void Stop()
+        {
+            // 再生中であれば、再生を停止する
+            if (IsPlaying)
+            {
+                IsPlaying = false;
+                _timer.Stop();
+            }
+        }
+    
+        // タイマーがTickするたびに呼ばれるメソッド
+        private void OnTimerTick(object? sender, EventArgs e)
+        {
+            // 現在時間に、経過した時間（秒）を加算する
+            CurrentTime += _timer.Interval.TotalSeconds;
+
+            // タイムラインの終端に達したら停止する (仮に60秒を終端とする)
+            if (CurrentTime >= 60.0) 
+            {
+                Stop();
+                CurrentTime = 60.0; // 終端にピッタリ合わせる
+            }
+        }
+        private void GoToStart()
+        {
+            // 再生中であれば停止してから移動
+            if (IsPlaying) Stop();
+            CurrentTime = 0.0;
+        }
+
+        private void GoToEnd()
+        {
+            // 再生中であれば停止してから移動
+            if (IsPlaying) Stop();
+            CurrentTime = 60.0; // 仮の総時間
         }
     }
 }

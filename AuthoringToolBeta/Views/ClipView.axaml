@@ -13,20 +13,26 @@
         <c:TimeSpanToPixelConverter x:Key="TimeSpanToPixelConverter" />
     </UserControl.Resources>
 
-    <Border Background="#3B82F6" 
-            CornerRadius="4" 
-            Padding="8,0"
-            Margin="{Binding LeftMarginThickness}"
-            Height="40"
-            MinWidth="100"
-            Width="{Binding ClipItemWidth}"
-            VerticalAlignment="Center">
-        <TextBlock Name="ClipNameTextBlock"
-                   Text="{Binding ClipItemName}"
-                   Background="Transparent"
-                   VerticalAlignment="Center"
-                   HorizontalAlignment="Center"
-                   PointerPressed="Clip_PointerPressed"
-        />
-    </Border>
+    <Grid ColumnDefinitions="6,*,6" Margin="{Binding LeftMarginThickness}">
+        <Rectangle Grid.Column="0" Fill="red" Cursor="SizeWestEast" PointerPressed="LeftHandle_PointerPressed"/>
+        <Border Grid.Column="1" Background="#3B82F6" 
+                               CornerRadius="4" 
+                               Padding="8,0"
+                               
+                               Height="40"
+                               MinWidth="100"
+                               Width="{Binding ClipItemWidth}"
+                               VerticalAlignment="Center">
+            
+                
+                <TextBlock  Name="ClipNameTextBlock"
+                           Text="{Binding ClipItemName}"
+                           Background="Transparent"
+                           VerticalAlignment="Center"
+                           HorizontalAlignment="Center"
+                           PointerPressed="Clip_PointerPressed"
+                />
+        </Border>
+        <Rectangle Grid.Column="2" Fill="red" Cursor="SizeWestEast" PointerPressed="RightHandle_PointerPressed"/>
+    </Grid>
 </UserControl>

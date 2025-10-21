@@ -29,7 +29,7 @@
             </DataTemplate>
          </ListBox.ItemTemplate>
     </ListBox>
-    <Grid Grid.Row="1" Grid.Column="1" RowDefinitions="*, Auto">
+    <Grid Grid.Row="1" Grid.Column="1" RowDefinitions="500, *">
           <local:TimelineView Grid.Row="1" Grid.Column="0" DataContext="{Binding Timeline}"/>
            <Border Grid.Row="0" Grid.Column="0"
                    Background="DarkGray"
