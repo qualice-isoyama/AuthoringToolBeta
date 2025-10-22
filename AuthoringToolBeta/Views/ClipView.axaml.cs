@@ -23,16 +23,9 @@ public partial class ClipView : UserControl
     }
     private async void Clip_PointerPressed(object? sender, PointerPressedEventArgs e)
     {
-        if (sender is TextBlock textBlock)
+        if (DataContext is ClipViewModel vm && e.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
         {
-            if (e.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
-            {
-                if (DataContext is ClipViewModel vm)
-                {
-                    // このクリップを選択する
-                    vm.SelectCommand.Execute(vm);
-                }
-            }
+            vm.SelectCommand.Execute(vm);
         }
     }
 

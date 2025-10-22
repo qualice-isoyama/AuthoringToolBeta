@@ -33,7 +33,8 @@
                                Height="40"
                                VerticalAlignment="Center"
                                BorderThickness="0,1"
-                               Classes.selected="{Binding IsSelected}">
+                               Classes.selected="{Binding IsSelected}"
+                               PointerPressed="Clip_PointerPressed">
             <Border.Width>
                 <MultiBinding Converter="{StaticResource CalculateDurationConverter}">
                     <Binding Path="StartTime"/>
@@ -46,7 +47,7 @@
                         Background="Transparent"
                         VerticalAlignment="Center"
                         HorizontalAlignment="Center"
-                        PointerPressed="Clip_PointerPressed"
+                        
             />
         </Border>
         <Border Grid.Column="2" Background="DodgerBlue" CornerRadius="0,10,10,0" BorderThickness="0,1,1,1"
