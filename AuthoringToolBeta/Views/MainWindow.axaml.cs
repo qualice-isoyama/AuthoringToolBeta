@@ -16,21 +16,6 @@ public partial class MainWindow : Window
     }
     private async void Asset_PointerPressed(object? sender, PointerPressedEventArgs e)
     {
-        // イベントの発生源（TextBlock）を取得
-        /*if (sender is TextBlock textBlock)
-        {
-            // TextBlockに表示されているアセット名（データ）を取得
-            var asset = textBlock.DataContext as HierarchyModel;
-            if (asset != null)
-            {
-                // ドラッグ＆ドロップ操作を開始
-                var dragData = new DataObject();
-                dragData.Set(DataFormats.Text, asset); // ドラッグするデータを設定
-
-                // DoDragDrop操作を開始
-                await DragDrop.DoDragDrop(e, dragData, DragDropEffects.Copy);
-            }
-        }*/
         if (sender is TextBlock textBlock)
         {
             var hierarchyItem = textBlock.DataContext as HierarchyModel;
@@ -63,8 +48,6 @@ public partial class MainWindow : Window
 
     private void Asset_Track_Drop(object? sender, DragEventArgs e)
     {
-        // DraggedObject.GetType().FullName を使用して、フォーマット文字列を一意にします。
-        
         // 1. このViewのDataContextであるViewModelを取得
         var viewModel = this.DataContext as MainWindowViewModel;
         if (viewModel == null) return;

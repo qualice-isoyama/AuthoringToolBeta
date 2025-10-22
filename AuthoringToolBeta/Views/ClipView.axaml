@@ -5,34 +5,52 @@
              mc:Ignorable="d" d:DesignWidth="200" d:DesignHeight="40"
              
              x:Class="AuthoringToolBeta.Views.ClipView"
+             Classes.selected="{Binding IsSelected}"
              xmlns:c="using:AuthoringToolBeta.Converters"
              xmlns:vm="using:AuthoringToolBeta.ViewModels"
              x:DataType="vm:ClipViewModel"
              x:Name="ClipViewRoot">
+    
     <UserControl.Resources>
-        <c:TimeSpanToPixelConverter x:Key="TimeSpanToPixelConverter" />
+        <c:CalculateDurationConverter x:Key="CalculateDurationConverter" />
     </UserControl.Resources>
-
+    <UserControl.Styles>
+        <Style Selector="Border">
+            <Setter Property="BorderBrush" Value="Transparent"/>
+        </Style>
+        <Style Selector="Border.selected">
+            <Setter Property="BorderBrush" Value="Yellow"/>
+            <Setter Property="Background" Value="LightBlue"/>
+        </Style>
+    </UserControl.Styles>
+    
     <Grid ColumnDefinitions="6,*,6" Margin="{Binding LeftMarginThickness}">
-        <Rectangle Grid.Column="0" Fill="red" Cursor="SizeWestEast" PointerPressed="LeftHandle_PointerPressed"/>
+        <Border Grid.Column="0" Background="DodgerBlue" CornerRadius="10,0,0,10" BorderThickness="1,1,0,1"
+                Cursor="SizeWestEast" Classes.selected="{Binding IsSelected}" PointerPressed="LeftHandle_PointerPressed"/>
         <Border Grid.Column="1" Background="#3B82F6" 
-                               CornerRadius="4" 
+                               CornerRadius="0" 
                                Padding="8,0"
-                               
                                Height="40"
                                MinWidth="100"
-                               Width="{Binding ClipItemWidth}"
-                               VerticalAlignment="Center">
-            
-                
-                <TextBlock  Name="ClipNameTextBlock"
-                           Text="{Binding ClipItemName}"
-                           Background="Transparent"
-                           VerticalAlignment="Center"
-                           HorizontalAlignment="Center"
-                           PointerPressed="Clip_PointerPressed"
-                />
+                               VerticalAlignment="Center"
+                               BorderThickness="0,1"
+                               Classes.selected="{Binding IsSelected}">
+            <Border.Width>
+                <MultiBinding Converter="{StaticResource CalculateDurationConverter}">
+                    <Binding Path="StartTime"/>
+                    <Binding Path="EndTime"/>
+                    <Binding Path="ParentViewModel.Scale"/>
+                </MultiBinding>
+            </Border.Width>
+            <TextBlock  Name="ClipNameTextBlock"
+                        Text="{Binding ClipItemName}"
+                        Background="Transparent"
+                        VerticalAlignment="Center"
+                        HorizontalAlignment="Center"
+                        PointerPressed="Clip_PointerPressed"
+            />
         </Border>
-        <Rectangle Grid.Column="2" Fill="red" Cursor="SizeWestEast" PointerPressed="RightHandle_PointerPressed"/>
+        <Border Grid.Column="2" Background="DodgerBlue" CornerRadius="0,10,10,0" BorderThickness="0,1,1,1"
+                Cursor="SizeWestEast" Classes.selected="{Binding IsSelected}" PointerPressed="RightHandle_PointerPressed"/>
     </Grid>
 </UserControl>

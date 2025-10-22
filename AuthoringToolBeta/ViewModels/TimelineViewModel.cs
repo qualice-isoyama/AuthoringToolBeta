@@ -102,8 +102,7 @@ namespace AuthoringToolBeta.ViewModels
                 "DEFOeffect99.png",
                 "source/DEFOeffect99.png",
                 "image/png",
-                3 * Scale,
-                2 * Scale,
+
                 3,
                 2
             ),this));
@@ -130,8 +129,6 @@ namespace AuthoringToolBeta.ViewModels
                 assetName,
                 assetPath,
                 assetType,
-                startTime * Scale,
-                duration * Scale,
                 startTime,
                 duration
             ),this);
@@ -149,25 +146,39 @@ namespace AuthoringToolBeta.ViewModels
         public void SetClipPositionX(ClipViewModel clipViewModel, double positionX)
         {
             Clips[Clips.IndexOf(clipViewModel)].StartTime = positionX / Scale;
-            Clips[Clips.IndexOf(clipViewModel)].ClipItemPositionX = positionX;
             Clips[Clips.IndexOf(clipViewModel)].LeftMarginThickness = new Thickness(positionX, 0, 0, 0);
         }
         // クリップを選択するためのメソッド
-        public void SelectClip(ClipViewModel clip)
+        public void SelectClip(ClipViewModel clipToSelect)
         {
-            SelectedClip = clip;
+            // 選択されていたクリップから別のクリップを選択状態にする
+            if (SelectedClip != null && SelectedClip != clipToSelect)
+            {
+                SelectedClip.IsSelected = false;
+            }
+            SelectedClip = clipToSelect;
+            if (SelectedClip != null)
+            {
+                SelectedClip.IsSelected = true;
+            }
         }
         private void ZoomIn()
         {
-            Scale *= 1.25; // スケールを25%拡大
-            SelectedClip.UpdateClip();
+            Scale =  Scale * 1.25; // スケールを25%拡大
+            for (int i = 0; i < Clips.Count; i++)
+            {
+                Clips[i].UpdateClip();
+            }
             UpdateMarkerWindths();
         }
 
         private void ZoomOut()
         {
             Scale /= 1.25; // スケールを25%縮小
-            SelectedClip.UpdateClip();
+            for (int i = 0; i < Clips.Count; i++)
+            {
+                Clips[i].UpdateClip();
+            }
             UpdateMarkerWindths();
         }
 

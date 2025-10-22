@@ -30,27 +30,16 @@ public partial class ClipView : UserControl
                 if (DataContext is ClipViewModel vm)
                 {
                     // このクリップを選択する
-                    //vm.SelectCommand.Execute(DataContext);
-                    vm.ParentViewModel.SelectedClip = vm;
+                    //vm.ParentViewModel.SelectedClip = vm;
+                    vm.SelectCommand.Execute(vm);
                 }
             }
-            // TextBlockに表示されているアセット名（データ）を取得
-            /*var currAsset = textBlock.DataContext;
-            if (currAsset != null)
-            {
-                // ドラッグ＆ドロップ操作を開始
-                var dragDataTest = new DataObject();
-                dragDataTest.Set(dragDataFormat, currAsset);
-
-                // DoDragDrop操作を開始
-                await DragDrop.DoDragDrop(e, dragDataTest, DragDropEffects.Copy);
-            }*/
         }
     }
 
     private void LeftHandle_PointerPressed(object? sender, PointerPressedEventArgs e)
     {
-        if (sender is Avalonia.Controls.Shapes.Rectangle rect && e.GetCurrentPoint(this).Properties.IsLeftButtonPressed &&
+        if (sender is Border border && e.GetCurrentPoint(this).Properties.IsLeftButtonPressed &&
             DataContext is ClipViewModel cvm)
         {
             _dragStartPoint = e.GetPosition(null);
@@ -59,9 +48,9 @@ public partial class ClipView : UserControl
             _originalDuration = cvm.Duration;
             _isDragging = true;
             _currentDragMode = DragMode.ResizeLeft;
-            e.Pointer.Capture(rect);
-            rect.PointerMoved += Handle_PointerMoved;
-            rect.PointerReleased += Handle_PointerReleased;
+            e.Pointer.Capture(border);
+            border.PointerMoved += Handle_PointerMoved;
+            border.PointerReleased += Handle_PointerReleased;
             e.Handled = true;
         }
     }
@@ -69,7 +58,7 @@ public partial class ClipView : UserControl
 
     private void RightHandle_PointerPressed(object? sender, PointerPressedEventArgs e)
     {
-        if (sender is Avalonia.Controls.Shapes.Rectangle rect && e.GetCurrentPoint(this).Properties.IsLeftButtonPressed &&
+        if (sender is Border border && e.GetCurrentPoint(this).Properties.IsLeftButtonPressed &&
             DataContext is ClipViewModel cvm)
         {
             _dragStartPoint = e.GetPosition(null);
@@ -78,15 +67,15 @@ public partial class ClipView : UserControl
             _originalDuration = cvm.Duration;
             _isDragging = true;
             _currentDragMode = DragMode.ResizeRight;
-            e.Pointer.Capture(rect);
-            rect.PointerMoved += Handle_PointerMoved;
-            rect.PointerReleased += Handle_PointerReleased;
+            e.Pointer.Capture(border);
+            border.PointerMoved += Handle_PointerMoved;
+            border.PointerReleased += Handle_PointerReleased;
             e.Handled = true;
         }
     }
     private void Handle_PointerMoved(object? sender, PointerEventArgs e)
     {
-        if (sender is Avalonia.Controls.Shapes.Rectangle rect && DataContext is ClipViewModel cvm)
+        if (DataContext is ClipViewModel cvm && _isDragging)
         {
             UpdateClip(e.GetPosition(null), cvm);
         }
@@ -94,13 +83,13 @@ public partial class ClipView : UserControl
 
     private void Handle_PointerReleased(object? sender, PointerReleasedEventArgs e)
     {
-        if (sender is Avalonia.Controls.Shapes.Rectangle rect )
+        if (sender is Border border )
         {
             _isDragging = false;
             _currentDragMode = DragMode.None;
             e.Pointer.Capture(null);
-            rect.PointerMoved -= Handle_PointerMoved;
-            rect.PointerReleased -= Handle_PointerReleased;
+            border.PointerMoved -= Handle_PointerMoved;
+            border.PointerReleased -= Handle_PointerReleased;
             e.Handled = true;
         }
     }
@@ -111,25 +100,28 @@ public partial class ClipView : UserControl
         var deltaTime = deltaX / cvm.ParentViewModel.Scale;
         if (_currentDragMode == DragMode.ResizeLeft)
         {
-            cvm.Duration -= deltaTime;
-            cvm.Duration = Math.Max(0.3, cvm.Duration);
-            if (cvm.Duration > 0.3)
+            var originalStartTime = cvm.StartTime;
+            var newStartTime = originalStartTime + deltaTime;
+            var originalEndTime = _originalStartTime + _originalDuration;
+            newStartTime= Math.Max(0, newStartTime);
+            newStartTime = Math.Min(newStartTime, originalEndTime - 1);
+            if (newStartTime < originalEndTime - 1)
             {
-                var newStartTime = _originalStartTime + deltaTime;
-                var originalEndTime = _originalStartTime + _originalDuration;
-                newStartTime = Math.Min(newStartTime, originalEndTime - 0.1);
-                var positionX = Math.Min((cvm.ClipItemPositionX + deltaX), (originalEndTime - 0.1) * cvm.ParentViewModel.Scale);
-                cvm.ClipItemPositionX = positionX; 
                 cvm.StartTime = newStartTime;
-                cvm.LeftMarginThickness = new Thickness(cvm.ClipItemPositionX, 0, 0, 0);
+                cvm.LeftMarginThickness = new Thickness(newStartTime * cvm.ParentViewModel.Scale, 0, 0, 0);
+                if (cvm.StartTime > 0)
+                {
+                    cvm.Duration = cvm.EndTime - cvm.StartTime;
+                    cvm.Duration = Math.Max(1, cvm.Duration);
+                }
             }
         }
         else if (_currentDragMode == DragMode.ResizeRight)
         {
             cvm.Duration += deltaTime;
-            cvm.Duration = Math.Max(0.3, cvm.Duration);
+            cvm.Duration = Math.Max(1, cvm.Duration);
+            cvm.EndTime = cvm.StartTime + cvm.Duration;
         }
-        cvm.ClipItemWidth = cvm.Duration * cvm.ParentViewModel.Scale;
         _beforePoint = currentPoint;
     }
     

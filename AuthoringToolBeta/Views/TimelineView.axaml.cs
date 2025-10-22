@@ -43,22 +43,22 @@ public partial class TimelineView : UserControl
         if (viewModel == null) return;
 
         // 2. ドロップされたアセット名と位置を取得
-        if (e.Data.Get(HierarchyViewModelFormat) is HierarchyModel asset && sender is Control track)
+        if (e.Data.Get(HierarchyViewModelFormat) is HierarchyModel asset && sender is Control track && DataContext is TimelineViewModel tvm)
         {
             var dropPosition = e.GetPosition(track);
 
             if (sender is Border border && border.Name == "Track1")
             {
                 // 3. UIを直接操作せず、ViewModelにクリップの追加を「依頼」する
-                viewModel.AddClip(asset.Name, "", "", dropPosition.X,dropPosition.X / 100, 2, 1);
+                viewModel.AddClip(asset.Name, "", "", dropPosition.X,dropPosition.X / tvm.Scale, 2, 1);
             }
             else if (sender is Border border2 && border2.Name == "Track2")
             {
-                viewModel.AddClip(asset.Name, "", "", dropPosition.X,dropPosition.X / 100, 2, 2);
+                viewModel.AddClip(asset.Name, "", "", dropPosition.X,dropPosition.X / tvm.Scale, 2, 2);
             }
             else if (sender is Border border3 && border3.Name == "Track3")
             {
-                viewModel.AddClip(asset.Name, "", "", dropPosition.X,dropPosition.X / 100, 2, 2);
+                viewModel.AddClip(asset.Name, "", "", dropPosition.X,dropPosition.X / tvm.Scale, 2, 2);
             }
         }
 
@@ -71,31 +71,7 @@ public partial class TimelineView : UserControl
             viewModel.SetClipPositionX(currClip, dropPosition.X);
         }
     }
-
-    private void Track_DragOver(object? sender, DragEventArgs e)
-    {
-        if (DataContext is TimelineViewModel vm && vm.SelectedClip is ClipViewModel cvm && sender is Border track )
-        {
-            Dispatcher.UIThread.RunJobs(DispatcherPriority.Input);
-            cvm.ClipItemPositionX = e.GetPosition(track).X;
-            Dispatcher.UIThread.InvokeAsync(() =>
-            {
-                cvm.ClipItemPositionX = e.GetPosition(track).X;
-            },DispatcherPriority.Input);
-        }
-    }
-    private void Track_DragOverByPointer(object? sender, PointerEventArgs e)
-    {
-        if (DataContext is TimelineViewModel vm && vm.SelectedClip is ClipViewModel cvm && sender is Border track )
-        {
-            Dispatcher.UIThread.RunJobs(DispatcherPriority.Input);
-            cvm.ClipItemPositionX = e.GetPosition(track).X;
-            Dispatcher.UIThread.InvokeAsync(() =>
-            {
-                cvm.ClipItemPositionX = e.GetPosition(track).X;
-            },DispatcherPriority.MaxValue);
-        }
-    }
+    
     private void PlayerHead_PointerPressed(object? sender, PointerPressedEventArgs e)
     {
         // イベント発生源のCanvasとViewModelを取得
@@ -192,13 +168,16 @@ public partial class TimelineView : UserControl
 
     private void UpdateClipItemPosition(Point pointerPosition, TimelineViewModel tvm)
     {
-        var originalPosX = tvm.SelectedClip.ClipItemPositionX;
-        var deltaX = pointerPosition.X - _dragStartPoint.X;
-        var positionX = Math.Max(0, originalPosX + deltaX);
-        tvm.SelectedClip.ClipItemPositionX = positionX;
-        tvm.SelectedClip.StartTime = positionX / tvm.Scale;
-        tvm.SelectedClip.LeftMarginThickness = new Thickness(positionX, 0, 0, 0);
-        _dragStartPoint = pointerPosition;
+        if (tvm.SelectedClip != null)
+        {
+            var originalStartTime = tvm.SelectedClip.StartTime;
+            var deltaTime = (pointerPosition.X - _dragStartPoint.X) / tvm.Scale;
+            var startTime = Math.Max(0, originalStartTime + deltaTime);
+            tvm.SelectedClip.StartTime = startTime;
+            tvm.SelectedClip.EndTime = startTime + tvm.SelectedClip.Duration;
+            tvm.SelectedClip.LeftMarginThickness = new Thickness(startTime * tvm.Scale, 0, 0, 0);
+            _dragStartPoint = pointerPosition;
+        }
     }
     
 }

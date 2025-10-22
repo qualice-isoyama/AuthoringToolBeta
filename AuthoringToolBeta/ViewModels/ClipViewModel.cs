@@ -56,20 +56,6 @@ namespace AuthoringToolBeta.ViewModels
             get => _priority;
             set => this.RaiseAndSetIfChanged(ref _priority, value);
         }
-        private double _clipItemPositionX;
-
-        public double ClipItemPositionX
-        {
-            get =>  _clipItemPositionX; 
-            set =>  this.RaiseAndSetIfChanged(ref _clipItemPositionX, value);
-        }
-        private double _clipItemWidth;
-
-        public double ClipItemWidth
-        {
-            get => _clipItemWidth;
-            set =>  this.RaiseAndSetIfChanged(ref _clipItemWidth, value);
-        }
         private Thickness _leftMarginThickness;
 
         public Thickness LeftMarginThickness
@@ -84,38 +70,53 @@ namespace AuthoringToolBeta.ViewModels
             set => this.RaiseAndSetIfChanged(ref _startTime, value);
         }
 
+        private double _endTime;
+
+        public double EndTime
+        {
+            get => _endTime;
+            set => this.RaiseAndSetIfChanged(ref _endTime, value);
+        }
+
         private double _duration;
         public double Duration // Width から変更
         {
             get => _duration;
             set => this.RaiseAndSetIfChanged(ref _duration, value);
         }
+        private bool _isSelected;
+
+        public bool IsSelected
+        {
+            get => _isSelected;
+            set => this.RaiseAndSetIfChanged(ref _isSelected, value);
+        }
         
         public ClipViewModel(ClipModel model)
         {
-            this.ClipItem = model;
-            this.ClipItemName = model.AssetName;
-            this.ClipItemPath = model.AssetPath;
-            this.ClipItemType = model.AssetType;
-            this.ClipItemPositionX = model.PositionX;
-            this.ClipItemWidth  = model.Width;
-            this.LeftMarginThickness = new Thickness(model.PositionX, 0, 0, 0);
+            ClipItem = model;
+            ClipItemName = model.AssetName;
+            ClipItemPath = model.AssetPath;
+            ClipItemType = model.AssetType;
+            StartTime = model.StartTime;
+            EndTime = model.StartTime + model.Duration;
+            Duration = model.Duration;
+            LeftMarginThickness = new Thickness(model.StartTime * ParentViewModel.Scale, 0, 0, 0);
         }
 
         public ClipViewModel(ClipModel model, TimelineViewModel parent)
         {
-            this._parentViewModel = parent;
-            this.ClipItem = model;
-            this.ClipItemName = model.AssetName;
-            this.ClipItemPath = model.AssetPath;
-            this.ClipItemType = model.AssetType;
-            this.ClipItemPositionX = model.PositionX;
-            this.ClipItemWidth  = model.Width;
-            this.LeftMarginThickness = new Thickness(model.PositionX, 0, 0, 0);
-            this._startTime = model.StartTime;
-            this._duration = model.Duration;
-            this.SelectCommand = new RelayCommand(_ => _parentViewModel.SelectClip(this));
-            this._parentViewModel = parent;
+            _parentViewModel = parent;
+            ClipItem = model;
+            ClipItemName = model.AssetName;
+            ClipItemPath = model.AssetPath;
+            ClipItemType = model.AssetType;
+            StartTime = model.StartTime;
+            EndTime = model.StartTime + model.Duration;
+            Duration = model.Duration;
+            LeftMarginThickness = new Thickness(model.StartTime * ParentViewModel.Scale, 0, 0, 0);
+            IsSelected = false;
+            SelectCommand = new RelayCommand(_ => _parentViewModel.SelectClip(this));
         }
         public ClipModel ToModel()
         {
@@ -127,11 +128,10 @@ namespace AuthoringToolBeta.ViewModels
             Priority = priority;
         }
 
+        // スケール変更の際のクリップ位置調整
         public void UpdateClip()
         {
-            ClipItemWidth = ParentViewModel.Scale * Duration;
-            ClipItemPositionX = ParentViewModel.Scale * StartTime;
-            LeftMarginThickness =  new  Thickness(ClipItemPositionX, 0, 0, 0);
+            LeftMarginThickness =  new  Thickness(StartTime * ParentViewModel.Scale, 0, 0, 0);
         }
     }
 }
