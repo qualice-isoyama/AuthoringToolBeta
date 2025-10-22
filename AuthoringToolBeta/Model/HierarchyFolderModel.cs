@@ -8,9 +8,9 @@ public class HierarchyFolderModel: HierarchyModel
 
     public HierarchyFolderModel(string name, string path, string type, List<HierarchyModel> children)
     {
-        this.Name = name;
-        this.Path = path;
-        this.Type = type;
-        this.Children = children;
+        Name = name;
+        Path = path;
+        Type = type;
+        Children = children;
     }
 }

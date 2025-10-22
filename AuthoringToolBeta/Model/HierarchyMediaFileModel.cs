@@ -4,11 +4,12 @@ public class HierarchyMediaFileModel: HierarchyModel
 {
     public string Content { get; set; }
 
-    public HierarchyMediaFileModel(string name, string path, string type, string content)
+    public HierarchyMediaFileModel(string name, string path, string type, string content , double duration)
     {
-        this.Name = name;
-        this.Path = path;
-        this.Type = type;
-        this.Content = content;
+        Name = name;
+        Path = path;
+        Type = type;
+        Content = content;
+        Duration = duration;
     }
 }

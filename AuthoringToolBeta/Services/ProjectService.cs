@@ -22,16 +22,19 @@ public class ProjectService
 
         if (file is null) return; // キャンセルされた
 
-        // 2. ViewModelからModelのリストに変換
-        var clipModels = timelineViewModel.Clips.Select(vm => vm.ToModel()).ToList();
-        
-        // 3. JSONにシリアライズ
-        var jsonString = JsonSerializer.Serialize(clipModels, new JsonSerializerOptions { WriteIndented = true });
+        for (int trackIdx = 0; trackIdx < timelineViewModel.Tracks.Count; trackIdx++)
+        {
+            // 2. ViewModelからModelのリストに変換
+            var clipModels = timelineViewModel.Tracks[trackIdx].Clips.Select(vm => vm.ToModel()).ToList();
 
-        // 4. ファイルに書き込み
-        await using var stream = await file.OpenWriteAsync();
-        await using var streamWriter = new StreamWriter(stream);
-        await streamWriter.WriteAsync(jsonString);
+            // 3. JSONにシリアライズ
+            var jsonString = JsonSerializer.Serialize(clipModels, new JsonSerializerOptions { WriteIndented = true });
+
+            // 4. ファイルに書き込み
+            await using var stream = await file.OpenWriteAsync();
+            await using var streamWriter = new StreamWriter(stream);
+            await streamWriter.WriteAsync(jsonString);
+        }
     }
 
     public async Task LoadProjectAsync(TimelineViewModel timelineViewModel, IStorageProvider storageProvider)
@@ -55,11 +58,14 @@ public class ProjectService
         var clipModels = JsonSerializer.Deserialize<List<ClipModel>>(jsonString);
         if (clipModels is null) return;
 
-        // 4. ViewModelを更新
-        timelineViewModel.Clips.Clear(); // 既存のクリップをクリア
-        foreach (var model in clipModels)
+        foreach (var track in timelineViewModel.Tracks)
         {
-            timelineViewModel.Clips.Add(new ClipViewModel(model));
+            // 4. ViewModelを更新
+            track.Clips.Clear(); // 既存のクリップをクリア
+            foreach (var model in clipModels)
+            {
+                track.Clips.Add(new ClipViewModel(model));
+            }
         }
     }
 }

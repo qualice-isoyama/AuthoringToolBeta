@@ -11,8 +11,8 @@ namespace AuthoringToolBeta.ViewModels
 {
     public class ClipViewModel: ReactiveObject
     {
-        private TimelineViewModel _parentViewModel;
-        public TimelineViewModel ParentViewModel 
+        private TrackViewModel _parentViewModel;
+        public TrackViewModel ParentViewModel 
         {
             get => _parentViewModel; 
             set => this.RaiseAndSetIfChanged(ref _parentViewModel, value);
@@ -101,10 +101,10 @@ namespace AuthoringToolBeta.ViewModels
             StartTime = model.StartTime;
             EndTime = model.StartTime + model.Duration;
             Duration = model.Duration;
-            LeftMarginThickness = new Thickness(model.StartTime * ParentViewModel.Scale, 0, 0, 0);
+            LeftMarginThickness = new Thickness(model.StartTime * ParentViewModel.ParentViewModel.Scale, 0, 0, 0);
         }
 
-        public ClipViewModel(ClipModel model, TimelineViewModel parent)
+        public ClipViewModel(ClipModel model, TrackViewModel parent)
         {
             _parentViewModel = parent;
             ClipItem = model;
@@ -114,9 +114,9 @@ namespace AuthoringToolBeta.ViewModels
             StartTime = model.StartTime;
             EndTime = model.StartTime + model.Duration;
             Duration = model.Duration;
-            LeftMarginThickness = new Thickness(model.StartTime * ParentViewModel.Scale, 0, 0, 0);
+            LeftMarginThickness = new Thickness(model.StartTime * ParentViewModel.ParentViewModel.Scale, 0, 0, 0);
             IsSelected = false;
-            SelectCommand = new RelayCommand(_ => _parentViewModel.SelectClip(this));
+            SelectCommand = new RelayCommand(_ => _parentViewModel.ParentViewModel.SelectClip(this));
         }
         public ClipModel ToModel()
         {
@@ -131,7 +131,7 @@ namespace AuthoringToolBeta.ViewModels
         // スケール変更の際のクリップ位置調整
         public void UpdateClip()
         {
-            LeftMarginThickness =  new  Thickness(StartTime * ParentViewModel.Scale, 0, 0, 0);
+            LeftMarginThickness =  new  Thickness(StartTime * _parentViewModel.ParentViewModel.Scale, 0, 0, 0);
         }
     }
 }

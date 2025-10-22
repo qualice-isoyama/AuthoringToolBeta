@@ -53,12 +53,12 @@ public partial class HierarchyView : UserControl
         if (viewModel == null) return;
         
         // このオブジェクトの上でドロップされたとき
-        if (e.Data.Get(HierarchyViewModelFormat) is HierarchyModel movefrom && sender is TextBlock textBlock)
+        if (e.Data.Get(HierarchyViewModelFormat) is HierarchyItemViewModel movefrom && sender is TextBlock textBlock)
         {
             // 位置入れ替え処理
             var tmpSender = sender as TextBlock;
-            var moveTo = tmpSender.DataContext as HierarchyModel;
-            viewModel.Test =  movefrom.Name + "\n" + moveTo.Name;
+            var moveTo = tmpSender.DataContext as HierarchyItemViewModel;
+            viewModel.Test =  movefrom.HModel.Name + "\n" + moveTo.HModel.Name;
             viewModel.exchangePosHierarchyItem(viewModel.Assets, movefrom, moveTo);
         }
     }

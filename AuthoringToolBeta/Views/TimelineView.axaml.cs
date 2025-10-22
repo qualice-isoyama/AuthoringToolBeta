@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Reactive.PlatformServices;
 using Avalonia;
 using Avalonia.Input;
@@ -12,7 +13,7 @@ namespace AuthoringToolBeta.Views;
 
 public partial class TimelineView : UserControl
 {
-    const string HierarchyViewModelFormat = "AuthoringToolBeta.ViewModels.HierarchyViewModel";
+    const string HierarchyItemViewModelFormat = "AuthoringToolBeta.ViewModels.HierarchyItemViewModel";
     const string dragDataFormat = "AuthoringToolBeta.ViewModels.ClipViewModel";
     private bool _isDraggingPlayhead = false;
     private bool _isDraggingClipItem = false;
@@ -24,7 +25,7 @@ public partial class TimelineView : UserControl
     private void Track_DragEnter(object? sender, DragEventArgs e)
     {
         // ドラッグされているデータがテキスト形式かを確認
-        if (e.Data.Contains(HierarchyViewModelFormat))
+        if (e.Data.Contains(HierarchyItemViewModelFormat))
         {
             // 受け入れ可能であることをカーソル形状で示す
             e.DragEffects = DragDropEffects.Copy;
@@ -39,36 +40,26 @@ public partial class TimelineView : UserControl
     private void Track_Drop(object? sender, DragEventArgs e)
     {
         // 1. このViewのDataContextであるViewModelを取得
-        var viewModel = DataContext as TimelineViewModel;
-        if (viewModel == null) return;
+        var tvm = DataContext as TimelineViewModel;
+        if (tvm == null) return;
+        var track = sender as Border;
 
         // 2. ドロップされたアセット名と位置を取得
-        if (e.Data.Get(HierarchyViewModelFormat) is HierarchyModel asset && sender is Control track && DataContext is TimelineViewModel tvm)
+        if (e.Data.Get(HierarchyItemViewModelFormat) is HierarchyItemViewModel asset)
         {
-            var dropPosition = e.GetPosition(track);
-
-            if (sender is Border border && border.Name == "Track1")
+            if (track.DataContext is TrackViewModel targetTrackVM)
             {
-                // 3. UIを直接操作せず、ViewModelにクリップの追加を「依頼」する
-                viewModel.AddClip(asset.Name, "", "", dropPosition.X,dropPosition.X / tvm.Scale, 2, 1);
-            }
-            else if (sender is Border border2 && border2.Name == "Track2")
-            {
-                viewModel.AddClip(asset.Name, "", "", dropPosition.X,dropPosition.X / tvm.Scale, 2, 2);
-            }
-            else if (sender is Border border3 && border3.Name == "Track3")
-            {
-                viewModel.AddClip(asset.Name, "", "", dropPosition.X,dropPosition.X / tvm.Scale, 2, 2);
+                var dropPosition = e.GetPosition(track);
+                var addedClip = tvm.AddClip(asset.HModel.Name, "", "", dropPosition.X / tvm.Scale, asset.HModel.Duration,targetTrackVM);
+                addedClip.SelectCommand.Execute(addedClip);
             }
         }
 
         // タイムライン上のクリップを移動させた場合
-        if (e.Data.Get(dragDataFormat) is ClipViewModel currClip && sender is Control trackclip)
+        if (e.Data.Get(dragDataFormat) is ClipViewModel currClip && track.DataContext is TrackViewModel currTrack)
         {
             var dropPosition = e.GetPosition(null);
-
-            // 3. UIを直接操作せず、ViewModelにクリップの追加を「依頼」する
-            viewModel.SetClipPositionX(currClip, dropPosition.X);
+            tvm.SetClipPositionX(currTrack,currClip, dropPosition.X);
         }
     }
     
@@ -136,26 +127,23 @@ public partial class TimelineView : UserControl
 
     private void ClipPointerPressed(object? sender, PointerPressedEventArgs e)
     {
-        if (sender is ClipView border && DataContext is TimelineViewModel vm)
-        {
-            if (e.GetCurrentPoint(border).Properties.IsLeftButtonPressed)
-            {
-                _isDraggingClipItem = true;
-                _dragStartPoint = e.GetPosition(border);
-                e.Pointer.Capture(border);
-                border.PointerMoved += ClipPointerMoved;
-                border.PointerReleased += ClipPointerReleased;
-                e.Handled = true;
 
-            }
+        if (sender is ClipView clip && e.GetCurrentPoint(clip).Properties.IsLeftButtonPressed)
+        {
+            _isDraggingClipItem = true;
+            _dragStartPoint = e.GetPosition(clip);
+            e.Pointer.Capture(clip);
+            clip.PointerMoved += ClipPointerMoved;
+            clip.PointerReleased += ClipPointerReleased;
+            e.Handled = true;
         }
     }
 
     private void ClipPointerMoved(object? sender, PointerEventArgs e)
     {
-        if (_isDraggingClipItem && sender is ClipView border && DataContext is TimelineViewModel vm)
+        if (_isDraggingClipItem && sender is ClipView clip && DataContext is TimelineViewModel tvm)
         {
-            UpdateClipItemPosition(e.GetPosition(border), vm);
+            UpdateClipItemPosition(e.GetPosition(clip), tvm);
         }
     }
 

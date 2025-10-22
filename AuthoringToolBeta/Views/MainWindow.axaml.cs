@@ -7,7 +7,7 @@ namespace AuthoringToolBeta.Views;
 
 public partial class MainWindow : Window
 {
-    const string HierarchyViewModelFormat = "AuthoringToolBeta.ViewModels.HierarchyViewModel";
+    const string HierarchyItemViewModelFormat = "AuthoringToolBeta.ViewModels.HierarchyItemViewModel";
     public MainWindow()
     {
         InitializeComponent();
@@ -18,11 +18,11 @@ public partial class MainWindow : Window
     {
         if (sender is TextBlock textBlock)
         {
-            var hierarchyItem = textBlock.DataContext as HierarchyModel;
+            var hierarchyItem = textBlock.DataContext as HierarchyItemViewModel;
             if (hierarchyItem != null)
             {
                 var dragData = new DataObject();
-                dragData.Set(HierarchyViewModelFormat, hierarchyItem);
+                dragData.Set(HierarchyItemViewModelFormat, hierarchyItem);
                 await DragDrop.DoDragDrop(e, dragData, DragDropEffects.Copy);
             }
         }
@@ -35,7 +35,7 @@ public partial class MainWindow : Window
             // 受け入れ可能であることをカーソル形状で示す
             e.DragEffects = DragDropEffects.Copy;
         }
-        else if (e.Data.Contains(HierarchyViewModelFormat))
+        else if (e.Data.Contains(HierarchyItemViewModelFormat))
         {
             e.DragEffects = DragDropEffects.Copy;
         }
@@ -53,12 +53,12 @@ public partial class MainWindow : Window
         if (viewModel == null) return;
         
         // このオブジェクトの上でドロップされたとき
-        if (e.Data.Get(HierarchyViewModelFormat) is HierarchyModel movefrom && sender is TextBlock textBlock)
+        if (e.Data.Get(HierarchyItemViewModelFormat) is HierarchyItemViewModel movefrom && sender is TextBlock textBlock)
         {
             // 位置入れ替え処理
             var tmpSender = sender as TextBlock;
-            var moveTo = tmpSender.DataContext as HierarchyModel;
-            viewModel.Test =  movefrom.Name + "\n" + moveTo.Name;
+            var moveTo = tmpSender.DataContext as HierarchyItemViewModel;
+            viewModel.Test =  movefrom.HModel.Name + "\n" + moveTo.HModel.Name;
             viewModel.exchangePosHierarchyItem(viewModel.Assets, movefrom, moveTo);
         }
     }

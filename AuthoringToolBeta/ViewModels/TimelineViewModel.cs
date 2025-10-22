@@ -22,10 +22,7 @@ namespace AuthoringToolBeta.ViewModels
         public ICommand StopCommand { get; }
         public ICommand GoToStartCommand { get; } 
         public ICommand GoToEndCommand { get; } 
-        public ObservableCollection<ClipViewModel> Clips { get; } = new();
-        public ObservableCollection<ClipViewModel> Clips2 { get; } = new();
-        public ObservableCollection<ClipViewModel> Clips3 { get; } = new();
-        public ObservableCollection<ObservableCollection<ClipViewModel>> Tracks { get; } = new();
+        public ObservableCollection<TrackViewModel> Tracks { get; } = new();
         public ObservableCollection<TimeMarkerViewModel> TimeMarkers { get; } = new ();
         private TimelineHierarchyViewModel _timelineHierarchyVM;
 
@@ -97,16 +94,17 @@ namespace AuthoringToolBeta.ViewModels
         {
             ZoomInCommand = new RelayCommand(_ => ZoomIn());
             ZoomOutCommand = new RelayCommand(_ => ZoomOut());
-            Clips.Add(new ClipViewModel(new ClipModel
+            Tracks.Add(new TrackViewModel("映像トラック 1",this));
+            Tracks.Add(new TrackViewModel("音声トラック 1",this));
+            Tracks.Add(new TrackViewModel("テロップトラック 1",this));
+            Tracks.First().Clips.Add(new ClipViewModel(new ClipModel
             (
                 "DEFOeffect99.png",
                 "source/DEFOeffect99.png",
                 "image/png",
-
                 3,
                 2
-            ),this));
-            Tracks.Add(Clips);
+            ),Tracks.First()));
             GenerateMarkers(TimeSpan.FromMinutes(1));
             TimelineHierarchyVM = new TimelineHierarchyViewModel();
             // タイマーの初期化
@@ -122,7 +120,13 @@ namespace AuthoringToolBeta.ViewModels
         }
 
         // ドロップ操作に応じて新しいクリップを追加するメソッド
-        public void AddClip(string assetName, string assetPath, string assetType, double positionX, double startTime, double duration, int trackNum)
+        public ClipViewModel AddClip(
+            string assetName, 
+            string assetPath, 
+            string assetType, 
+            double startTime, 
+            double duration, 
+            TrackViewModel  targetTrack)
         {
             var newClipViewModel = new ClipViewModel(new ClipModel
             (
@@ -131,22 +135,15 @@ namespace AuthoringToolBeta.ViewModels
                 assetType,
                 startTime,
                 duration
-            ),this);
-            if (trackNum == 1)
-            {
-                Clips.Add(newClipViewModel);
-            }
-            else if (trackNum == 2)
-            {
-                Clips2.Add(newClipViewModel);
-            }
-            
+            ),targetTrack);
+            targetTrack.Clips.Add(newClipViewModel);
+            return newClipViewModel;
         }
 
-        public void SetClipPositionX(ClipViewModel clipViewModel, double positionX)
+        public void SetClipPositionX(TrackViewModel trvm, ClipViewModel cvm, double positionX)
         {
-            Clips[Clips.IndexOf(clipViewModel)].StartTime = positionX / Scale;
-            Clips[Clips.IndexOf(clipViewModel)].LeftMarginThickness = new Thickness(positionX, 0, 0, 0);
+            trvm.Clips[trvm.Clips.IndexOf(cvm)].StartTime = positionX / Scale;
+            trvm.Clips[trvm.Clips.IndexOf(cvm)].LeftMarginThickness = new Thickness(positionX, 0, 0, 0);
         }
         // クリップを選択するためのメソッド
         public void SelectClip(ClipViewModel clipToSelect)
@@ -161,13 +158,25 @@ namespace AuthoringToolBeta.ViewModels
             {
                 SelectedClip.IsSelected = true;
             }
+            
+            // 全てのクリップをチェックして、選択状態を正しく反映させる（念のため）
+            foreach (TrackViewModel track in Tracks)
+            {
+                foreach (ClipViewModel clip in track.Clips)
+                {
+                    clip.IsSelected = (clip == SelectedClip);
+                }
+            }
         }
         private void ZoomIn()
         {
             Scale =  Scale * 1.25; // スケールを25%拡大
-            for (int i = 0; i < Clips.Count; i++)
+            for (int trackIdx = 0; trackIdx < Tracks.Count; trackIdx++)
             {
-                Clips[i].UpdateClip();
+                for (int clipIdx = 0; clipIdx < Tracks[trackIdx].Clips.Count; clipIdx++)
+                {
+                    Tracks[trackIdx].Clips[clipIdx].UpdateClip();
+                }
             }
             UpdateMarkerWindths();
         }
@@ -175,9 +184,12 @@ namespace AuthoringToolBeta.ViewModels
         private void ZoomOut()
         {
             Scale /= 1.25; // スケールを25%縮小
-            for (int i = 0; i < Clips.Count; i++)
+            for (int trackIdx = 0; trackIdx < Tracks.Count; trackIdx++)
             {
-                Clips[i].UpdateClip();
+                for (int clipIdx = 0; clipIdx < Tracks[trackIdx].Clips.Count; clipIdx++)
+                {
+                    Tracks[trackIdx].Clips[clipIdx].UpdateClip();
+                }
             }
             UpdateMarkerWindths();
         }

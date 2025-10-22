@@ -23,13 +23,13 @@
     <ListBox Grid.Row="1" Grid.Column="0" ItemsSource="{Binding Assets}" Margin="5">
         <ListBox.ItemTemplate>
             <DataTemplate>
-                <TextBlock Text="{Binding Name}" Margin="5" 
+                <TextBlock Text="{Binding HModel.Name}" Margin="5" 
                            PointerPressed="Asset_PointerPressed"
                            DragDrop.AllowDrop="True" DragDrop.DragEnter="Asset_Track_DragEnter" DragDrop.Drop="Asset_Track_Drop"/>
             </DataTemplate>
          </ListBox.ItemTemplate>
     </ListBox>
-    <Grid Grid.Row="1" Grid.Column="1" RowDefinitions="500, *">
+    <Grid Grid.Row="1" Grid.Column="1" RowDefinitions="400, *">
           <local:TimelineView Grid.Row="1" Grid.Column="0" DataContext="{Binding Timeline}"/>
            <Border Grid.Row="0" Grid.Column="0"
                    Background="DarkGray"

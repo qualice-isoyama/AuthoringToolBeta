@@ -30,7 +30,6 @@ public partial class ClipView : UserControl
                 if (DataContext is ClipViewModel vm)
                 {
                     // このクリップを選択する
-                    //vm.ParentViewModel.SelectedClip = vm;
                     vm.SelectCommand.Execute(vm);
                 }
             }
@@ -97,7 +96,7 @@ public partial class ClipView : UserControl
     public void UpdateClip(Point currentPoint, ClipViewModel cvm)
     {
         var deltaX =  currentPoint.X - _beforePoint.X;
-        var deltaTime = deltaX / cvm.ParentViewModel.Scale;
+        var deltaTime = deltaX / cvm.ParentViewModel.ParentViewModel.Scale;
         if (_currentDragMode == DragMode.ResizeLeft)
         {
             var originalStartTime = cvm.StartTime;
@@ -105,10 +104,10 @@ public partial class ClipView : UserControl
             var originalEndTime = _originalStartTime + _originalDuration;
             newStartTime= Math.Max(0, newStartTime);
             newStartTime = Math.Min(newStartTime, originalEndTime - 1);
-            if (newStartTime < originalEndTime - 1)
+            if (newStartTime < originalEndTime - 1 && (cvm.EndTime - cvm.StartTime) > 1)
             {
                 cvm.StartTime = newStartTime;
-                cvm.LeftMarginThickness = new Thickness(newStartTime * cvm.ParentViewModel.Scale, 0, 0, 0);
+                cvm.LeftMarginThickness = new Thickness(newStartTime * cvm.ParentViewModel.ParentViewModel.Scale, 0, 0, 0);
                 if (cvm.StartTime > 0)
                 {
                     cvm.Duration = cvm.EndTime - cvm.StartTime;

@@ -31,7 +31,6 @@
                                CornerRadius="0" 
                                Padding="8,0"
                                Height="40"
-                               MinWidth="100"
                                VerticalAlignment="Center"
                                BorderThickness="0,1"
                                Classes.selected="{Binding IsSelected}">
@@ -39,7 +38,7 @@
                 <MultiBinding Converter="{StaticResource CalculateDurationConverter}">
                     <Binding Path="StartTime"/>
                     <Binding Path="EndTime"/>
-                    <Binding Path="ParentViewModel.Scale"/>
+                    <Binding Path="ParentViewModel.ParentViewModel.Scale"/>
                 </MultiBinding>
             </Border.Width>
             <TextBlock  Name="ClipNameTextBlock"

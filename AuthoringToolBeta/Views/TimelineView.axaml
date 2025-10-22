@@ -58,61 +58,29 @@
                                     </ItemsControl>
                                 </Border>
                                 
-                                <Border x:Name="Track1" Height="50" Background="#555555" BorderBrush="#444444" BorderThickness="0,0,0,1" Width="{Binding TotalWidth}"
-                                        DragDrop.AllowDrop="True" DragDrop.DragEnter="Track_DragEnter" DragDrop.Drop="Track_Drop" 
-                                        >
-                                    
-                                    <ItemsControl ItemsSource="{Binding Clips}" >
-                                        <ItemsControl.ItemTemplate>
-                                            <DataTemplate>
-                                                <local:ClipView PointerPressed="ClipPointerPressed"/>
-                                            </DataTemplate>
-                                        </ItemsControl.ItemTemplate>
-                
-                                        <ItemsControl.ItemsPanel>
-                                            <ItemsPanelTemplate>
-                                                <Canvas />
-                                            </ItemsPanelTemplate>
-                                        </ItemsControl.ItemsPanel>
-
-                                    </ItemsControl>
-                                    
-                                </Border>
-                                <Border x:Name="Track2" Height="50" Background="#555555" BorderBrush="#444444" BorderThickness="0,0,0,1" Width="{Binding TotalWidth}"
-                                        DragDrop.AllowDrop="True" DragDrop.DragEnter="Track_DragEnter" DragDrop.Drop="Track_Drop" >
-                                    <ItemsControl ItemsSource="{Binding Clips2}">
-                                        <ItemsControl.ItemTemplate>
-                                            <DataTemplate>
-                                                <local:ClipView />
-                                            </DataTemplate>
-                                        </ItemsControl.ItemTemplate>
-                
-                                        <ItemsControl.ItemsPanel>
-                                            <ItemsPanelTemplate>
-                                                <Canvas />
-                                            </ItemsPanelTemplate>
-                                        </ItemsControl.ItemsPanel>
-
-                                    </ItemsControl>
-                                </Border>
-                  
-                                <Border x:Name="Track3" Height="50" Background="#555555" BorderBrush="#444444" BorderThickness="0,0,0,1" Width="{Binding TotalWidth}"
-                                        DragDrop.AllowDrop="True" DragDrop.DragEnter="Track_DragEnter" DragDrop.Drop="Track_Drop" >
-                                    <ItemsControl ItemsSource="{Binding Clips3}">
-                                        <ItemsControl.ItemTemplate>
-                                            <DataTemplate>
-                                                <local:ClipView />
-                                            </DataTemplate>
-                                        </ItemsControl.ItemTemplate>
-                
-                                        <ItemsControl.ItemsPanel>
-                                            <ItemsPanelTemplate>
-                                                <Canvas />
-                                            </ItemsPanelTemplate>
-                                        </ItemsControl.ItemsPanel>
-
-                                    </ItemsControl>
-                                </Border>
+                                <ItemsControl ItemsSource="{Binding Tracks}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate DataType="vm:TrackViewModel">
+                                            <Border Height="50" Background="#555555" BorderBrush="#444444" BorderThickness="0,0,0,1"
+                                                    Width="{Binding ParentViewModel.TotalWidth}"
+                                                    DragDrop.AllowDrop="True" DragDrop.DragEnter="Track_DragEnter" DragDrop.Drop="Track_Drop">
+                                                <ItemsControl ItemsSource="{Binding Clips}">
+                                                    <ItemsControl.ItemTemplate>
+                                                        <DataTemplate DataType="vm:ClipViewModel">
+                                                            <v:ClipView PointerPressed="ClipPointerPressed"/>
+                                                        </DataTemplate>
+                                                    </ItemsControl.ItemTemplate>
+                                                    <ItemsControl.ItemsPanel>
+                                                        <ItemsPanelTemplate>
+                                                            <Canvas />
+                                                        </ItemsPanelTemplate>
+                                                    </ItemsControl.ItemsPanel>
+                                                </ItemsControl>
+                                                
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
 
                             </StackPanel>
                             <Canvas  >

@@ -14,6 +14,5 @@ public class HierarchyViewModel
         int exchangeToIdx = Hierarchy.IndexOf(exchangeToHM);
         Hierarchy[exchangeFromIdx] = exchangeToHM;
         Hierarchy[exchangeToIdx] = exchangeFromHM;
-        
     }
 }
