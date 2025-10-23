@@ -1,11 +1,8 @@
 using System;
-using System.Linq;
-using System.Reactive.PlatformServices;
 using Avalonia;
 using Avalonia.Input;
 using Avalonia.Controls;
-using Avalonia.Threading;
-using AuthoringToolBeta.Model;
+using AuthoringToolBeta.UndoRedo;
 using AuthoringToolBeta.ViewModels;
 
 
@@ -18,6 +15,7 @@ public partial class TimelineView : UserControl
     private bool _isDraggingPlayhead = false;
     private bool _isDraggingClipItem = false;
     private Point _dragStartPoint;
+    private double  _dragStartTime;
     public TimelineView()
     {
         InitializeComponent();
@@ -66,7 +64,7 @@ public partial class TimelineView : UserControl
     private void PlayerHead_PointerPressed(object? sender, PointerPressedEventArgs e)
     {
         // イベント発生源のCanvasとViewModelを取得
-        if (sender is StackPanel canvas && this.DataContext is TimelineViewModel viewModel)
+        if (sender is Border canvas && this.DataContext is TimelineViewModel viewModel)
         {
             // マウスの左ボタンが押されたらドラッグ開始
             if (e.GetCurrentPoint(canvas).Properties.IsLeftButtonPressed)
@@ -91,7 +89,7 @@ public partial class TimelineView : UserControl
     private void PlayerHead_PointerMoved(object? sender, PointerEventArgs e)
     {
         // ドラッグ中であれば再生ヘッドの位置を更新
-        if (_isDraggingPlayhead && sender is StackPanel canvas && this.DataContext is TimelineViewModel viewModel)
+        if (_isDraggingPlayhead && sender is Border canvas && this.DataContext is TimelineViewModel viewModel)
         {
             UpdatePlayheadPosition(e.GetPosition(canvas), viewModel);
         }
@@ -100,7 +98,7 @@ public partial class TimelineView : UserControl
     private void PlayerHead_PointerReleased(object? sender, PointerReleasedEventArgs e)
     {
         // ドラッグが終了したらフラグを倒し、イベント購読を解除
-        if (_isDraggingPlayhead && sender is StackPanel canvas)
+        if (_isDraggingPlayhead && sender is Border canvas)
         {
             _isDraggingPlayhead = false;
             
@@ -128,10 +126,11 @@ public partial class TimelineView : UserControl
     private void ClipPointerPressed(object? sender, PointerPressedEventArgs e)
     {
 
-        if (sender is ClipView clip && e.GetCurrentPoint(clip).Properties.IsLeftButtonPressed)
+        if (sender is ClipView clip && e.GetCurrentPoint(clip).Properties.IsLeftButtonPressed && clip.DataContext is ClipViewModel cvm)
         {
             _isDraggingClipItem = true;
             _dragStartPoint = e.GetPosition(clip);
+            _dragStartTime = cvm.StartTime;
             e.Pointer.Capture(clip);
             clip.PointerMoved += ClipPointerMoved;
             clip.PointerReleased += ClipPointerReleased;
@@ -149,6 +148,9 @@ public partial class TimelineView : UserControl
 
     private void ClipPointerReleased(object? sender, PointerReleasedEventArgs e)
     {
+        TimelineViewModel tvm = DataContext as TimelineViewModel;
+        MoveClipCommand command = new MoveClipCommand(tvm.SelectedClip,_dragStartTime,tvm.SelectedClip.StartTime);
+        tvm.UndoRedoManager.Do(command);
         _isDraggingClipItem = false;
         e.Pointer.Capture(null);
         e.Handled = true;
@@ -167,5 +169,4 @@ public partial class TimelineView : UserControl
             _dragStartPoint = pointerPosition;
         }
     }
-    
 }

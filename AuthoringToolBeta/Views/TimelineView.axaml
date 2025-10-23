@@ -36,11 +36,11 @@
                         
                         <Grid Grid.Column="1">
                             <StackPanel >
-                                <Border Background="#333333" Height="30" >
+                                <Border Background="#333333" Height="30" PointerPressed="PlayerHead_PointerPressed">
                                     <ItemsControl ItemsSource="{Binding TimeMarkers}">
                                         <ItemsControl.ItemsPanel>
                                             <ItemsPanelTemplate>
-                                                <StackPanel  Orientation="Horizontal" PointerPressed="PlayerHead_PointerPressed"/>
+                                                <StackPanel  Orientation="Horizontal" />
                                             </ItemsPanelTemplate>
                                         </ItemsControl.ItemsPanel>
                                         <ItemsControl.ItemTemplate>

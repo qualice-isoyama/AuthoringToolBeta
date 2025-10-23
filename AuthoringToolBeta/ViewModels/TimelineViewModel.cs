@@ -1,21 +1,22 @@
 ﻿using Avalonia;
+using Avalonia.Threading;
 using System;
 using System.Windows.Input;
-using AuthoringToolBeta.Commands;
 using System.Collections.ObjectModel;
 using System.Linq;
 using AuthoringToolBeta.Model;
-using AuthoringToolBeta.ViewModels;
+using AuthoringToolBeta.UndoRedo;
+using AuthoringToolBeta.Commands;
 using AuthoringToolBeta.ViewModels.Base;
-using Avalonia.Threading;
+
 
 
 namespace AuthoringToolBeta.ViewModels
 {
     public class TimelineViewModel: ViewModelBase
     {
-        // クリップのViewModelを保持するコレクション
-        
+        public UndoRedoManager UndoRedoManager { get; } = new();
+        public ICommand MoveClipCommand { get; }
         public ICommand ZoomInCommand { get; }
         public ICommand ZoomOutCommand { get; }
         public ICommand PlayCommand { get; }
@@ -113,6 +114,7 @@ namespace AuthoringToolBeta.ViewModels
                 Interval = TimeSpan.FromMilliseconds(16)
             };
             _timer.Tick += OnTimerTick;
+            //MoveClipCommand = new RelayCommand(_ => MoveClip());
             PlayCommand = new RelayCommand(_ => Play());
             StopCommand = new RelayCommand(_ => Stop());
             GoToStartCommand = new RelayCommand(_ => GoToStart());
@@ -136,7 +138,10 @@ namespace AuthoringToolBeta.ViewModels
                 startTime,
                 duration
             ),targetTrack);
-            targetTrack.Clips.Add(newClipViewModel);
+            
+            var command = new AddClipCommand(targetTrack, newClipViewModel);
+            UndoRedoManager.Do(command);
+            //targetTrack.Clips.Add(newClipViewModel);
             return newClipViewModel;
         }
 
@@ -255,6 +260,10 @@ namespace AuthoringToolBeta.ViewModels
             // 再生中であれば停止してから移動
             if (IsPlaying) Stop();
             CurrentTime = 60.0; // 仮の総時間
+        }
+        public void MoveClip(MoveClipCommand command)
+        {
+            UndoRedoManager.Do(command);
         }
     }
 }

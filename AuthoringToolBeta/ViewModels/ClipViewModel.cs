@@ -1,11 +1,9 @@
 ﻿using AuthoringToolBeta.Commands;
-using AuthoringToolBeta.Common;
+using AuthoringToolBeta.UndoRedo;
 using Avalonia;
 using ReactiveUI;
 using AuthoringToolBeta.Model;
 using System.Windows.Input;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
 
 namespace AuthoringToolBeta.ViewModels
 {

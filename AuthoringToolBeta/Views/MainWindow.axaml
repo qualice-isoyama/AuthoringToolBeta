@@ -18,6 +18,10 @@
               <MenuItem Header="_Save As..." Command="{Binding SaveCommand}"/>
               <MenuItem Header="_Open TestWindow" Command="{Binding OpenTestWindow}"/>
           </MenuItem>
+          <MenuItem Header="_Edit">
+              <MenuItem Header="_Undo" Command="{Binding Timeline.UndoRedoManager.UndoCommand}" IsEnabled="{Binding Timeline.UndoRedoManager.CanUndo}"/>
+              <MenuItem Header="_Redo" Command="{Binding Timeline.UndoRedoManager.RedoCommand}" IsEnabled="{Binding Timeline.UndoRedoManager.CanRedo}"/>
+          </MenuItem>
       </Menu>
 
     <ListBox Grid.Row="1" Grid.Column="0" ItemsSource="{Binding Assets}" Margin="5">

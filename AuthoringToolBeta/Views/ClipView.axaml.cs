@@ -1,8 +1,8 @@
 using System;
-using System.Drawing;
 using Avalonia;
 using Avalonia.Input;
 using Avalonia.Controls;
+using AuthoringToolBeta.UndoRedo;
 using AuthoringToolBeta.ViewModels;
 using Point = Avalonia.Point;
 
@@ -15,7 +15,9 @@ public partial class ClipView : UserControl
     private Point _beforePoint;
     private double _originalStartTime;
     private double _originalDuration;
-    private enum DragMode { None, Move, ResizeLeft, ResizeRight }
+    private double _newStartTime;
+    private double _newDuration;
+    public enum DragMode { None, Move, ResizeLeft, ResizeRight }
     private DragMode _currentDragMode = DragMode.None;
     public ClipView()
     {
@@ -75,8 +77,16 @@ public partial class ClipView : UserControl
 
     private void Handle_PointerReleased(object? sender, PointerReleasedEventArgs e)
     {
-        if (sender is Border border )
+        if (sender is Border border && border.DataContext is ClipViewModel cvm)
         {
+            ResizeClipCommand command = new ResizeClipCommand(
+                cvm,
+                _originalStartTime,
+                _newStartTime,
+                _originalDuration,
+                cvm.EndTime - _newStartTime
+            );
+            cvm.ParentViewModel.ParentViewModel.UndoRedoManager.Do(command);
             _isDragging = false;
             _currentDragMode = DragMode.None;
             e.Pointer.Capture(null);
@@ -88,12 +98,13 @@ public partial class ClipView : UserControl
 
     public void UpdateClip(Point currentPoint, ClipViewModel cvm)
     {
+        double newStartTime = cvm.StartTime;
         var deltaX =  currentPoint.X - _beforePoint.X;
         var deltaTime = deltaX / cvm.ParentViewModel.ParentViewModel.Scale;
         if (_currentDragMode == DragMode.ResizeLeft)
         {
             var originalStartTime = cvm.StartTime;
-            var newStartTime = originalStartTime + deltaTime;
+            newStartTime = originalStartTime + deltaTime;
             var originalEndTime = _originalStartTime + _originalDuration;
             newStartTime= Math.Max(0, newStartTime);
             newStartTime = Math.Min(newStartTime, originalEndTime - 1);
@@ -114,7 +125,8 @@ public partial class ClipView : UserControl
             cvm.Duration = Math.Max(1, cvm.Duration);
             cvm.EndTime = cvm.StartTime + cvm.Duration;
         }
+        _newStartTime = cvm.StartTime;
+        _newDuration = cvm.Duration;
         _beforePoint = currentPoint;
     }
-    
 }
