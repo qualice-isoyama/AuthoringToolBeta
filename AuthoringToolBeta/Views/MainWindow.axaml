@@ -33,20 +33,15 @@
             </DataTemplate>
          </ListBox.ItemTemplate>
     </ListBox>
-    <Grid Grid.Row="1" Grid.Column="1" RowDefinitions="400, *">
-          <local:TimelineView Grid.Row="1" Grid.Column="0" DataContext="{Binding Timeline}"/>
-           <Border Grid.Row="0" Grid.Column="0"
-                   Background="DarkGray"
-                   BorderBrush="Black" BorderThickness="1">
-               <ItemsControl ItemsSource="{Binding }"></ItemsControl>
-           </Border>
-          <Border Grid.Row="0" Grid.Column="0"
-                  Background="DarkGray"
-                  BorderBrush="Black" BorderThickness="1">
-              <TextBlock Text="{Binding  Test}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-          </Border>
-          
-      </Grid>
+    <Grid Grid.Row="1" Grid.Column="1" ColumnDefinitions="Auto, *" RowDefinitions="400,*">
+        <Border Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2"
+                Background="DarkGray"
+                BorderBrush="Black" BorderThickness="1">
+            <ItemsControl ItemsSource="{Binding }"></ItemsControl>
+        </Border>
+        <local:TimelineHierarchyView Grid.Row="1" Grid.Column="0" DataContext="{Binding Timeline}"/>
+        <local:TimelineView Grid.Row="1"  Grid.Column="1" DataContext="{Binding Timeline}"/>
+    </Grid>
 
     <Border Grid.Row="1" Grid.Column="2"
             Background="LightSteelBlue"

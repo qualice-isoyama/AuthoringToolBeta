@@ -5,17 +5,17 @@ namespace AuthoringToolBeta.ViewModels;
 
 public class TimelineHierarchyViewModel
 {
-    public ObservableCollection<TimelineHierarchyModel> timelineHierarchy { get; set; }
+    public ObservableCollection<TimelineHierarchyItemViewModel> timelineHierarchy { get; set; }
 
     public TimelineHierarchyViewModel()
     {
-        timelineHierarchy = new ObservableCollection<TimelineHierarchyModel>
+        timelineHierarchy = new ObservableCollection<TimelineHierarchyItemViewModel>
         {
-            new TimelineHierarchyModel() { Name = "test01" },
-            new TimelineHierarchyModel() { Name = "test02" },
-            new TimelineHierarchyModel() { Name = "test03" },
-            new TimelineHierarchyModel() { Name = "test04" },
-            new TimelineHierarchyModel() { Name = "test05" }
+            new TimelineHierarchyItemViewModel() { Name = "test01" },
+            new TimelineHierarchyItemViewModel()  { Name = "test02" },
+            new TimelineHierarchyItemViewModel()  { Name = "test03" },
+            new TimelineHierarchyItemViewModel()  { Name = "test04" },
+            new TimelineHierarchyItemViewModel()  { Name = "test05" }
         };
     }
 }

@@ -66,10 +66,10 @@ public partial class TimelineView : UserControl
         }
     }
     
-    private void PlayerHead_PointerPressed(object? sender, PointerPressedEventArgs e)
+    private void Ruler_PointerPressed(object? sender, PointerPressedEventArgs e)
     {
         // イベント発生源のCanvasとViewModelを取得
-        if (sender is Border canvas && this.DataContext is TimelineViewModel viewModel)
+        if (sender is Canvas canvas && DataContext is TimelineViewModel viewModel)
         {
             // マウスの左ボタンが押されたらドラッグ開始
             if (e.GetCurrentPoint(canvas).Properties.IsLeftButtonPressed)
@@ -94,7 +94,7 @@ public partial class TimelineView : UserControl
     private void PlayerHead_PointerMoved(object? sender, PointerEventArgs e)
     {
         // ドラッグ中であれば再生ヘッドの位置を更新
-        if (_isDraggingPlayhead && sender is Border canvas && this.DataContext is TimelineViewModel viewModel)
+        if (_isDraggingPlayhead && sender is Canvas canvas && this.DataContext is TimelineViewModel viewModel)
         {
             UpdatePlayheadPosition(e.GetPosition(canvas), viewModel);
         }
@@ -103,7 +103,7 @@ public partial class TimelineView : UserControl
     private void PlayerHead_PointerReleased(object? sender, PointerReleasedEventArgs e)
     {
         // ドラッグが終了したらフラグを倒し、イベント購読を解除
-        if (_isDraggingPlayhead && sender is Border canvas)
+        if (_isDraggingPlayhead && sender is Canvas canvas)
         {
             _isDraggingPlayhead = false;
             

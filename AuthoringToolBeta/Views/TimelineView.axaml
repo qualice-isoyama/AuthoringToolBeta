@@ -16,88 +16,112 @@
     </UserControl.Resources>
     <Grid RowDefinitions="*,Auto">
         <Border Grid.Row="0" BorderBrush="#333333"  >
-                <ScrollViewer  HorizontalScrollBarVisibility="Visible">
-                    <Grid ColumnDefinitions="Auto,*">
-                        <StackPanel Grid.Column="0" Orientation="Horizontal">
-                            <Border  BorderBrush="#333333" BorderThickness="1">
-                                <StackPanel >
-                                    <Border Background="Transparent" Height="30"/>
-                                    <ListBox DataContext="{Binding TimelineHierarchyVM}" ItemsSource="{Binding timelineHierarchy}" Margin="5"
-                                             Background="Transparent" BorderThickness="0,0,0,1">
-                                        <ListBox.ItemTemplate>
-                                            <DataTemplate>
-                                                <TextBlock Text="{Binding Name}" Margin="5"/>
-                                            </DataTemplate>
-                                        </ListBox.ItemTemplate>
-                                    </ListBox>
-                                </StackPanel>
-                            </Border>
-                        </StackPanel>
-                        
-                        <Grid Grid.Column="1">
-                            <StackPanel >
-                                <Border Background="#333333" Height="30" PointerPressed="PlayerHead_PointerPressed">
+            <Grid ColumnDefinitions="Auto,*">
+                <Grid Grid.Column="1"> 
+                    <Grid.Resources>
+                        <c:NegativeValueConverter x:Key="NegativeValueConverter"/>
+                    </Grid.Resources>
+                    <Grid RowDefinitions="Auto,*">
+                        <ScrollViewer Grid.Row="0" HorizontalScrollBarVisibility="Hidden"
+                                      Offset="{Binding #TimelineComponent.Offset}">
+                            <Border  Background="#333333" Height="50" Width="{Binding TotalWidth}"  BorderThickness="1" ClipToBounds="False">
+                                <Grid>
+                                    <Canvas Background="Transparent" PointerPressed="Ruler_PointerPressed">
+                                        <Border Width="30" Height="50" Background="Red" CornerRadius="10" 
+                                                Margin="-15,0,0,0">
+                                            <Canvas.Left>
+                                                <MultiBinding Converter="{StaticResource TimeSpanToPixelConverter}">
+                                                    <Binding Path="CurrentTime"/>
+                                                    <Binding Path="Scale"/>
+                                                </MultiBinding>
+                                            </Canvas.Left>
+                                        </Border>
+                                    </Canvas>
                                     <ItemsControl ItemsSource="{Binding TimeMarkers}">
                                         <ItemsControl.ItemsPanel>
                                             <ItemsPanelTemplate>
-                                                <StackPanel  Orientation="Horizontal" />
+                                                <Canvas />
                                             </ItemsPanelTemplate>
                                         </ItemsControl.ItemsPanel>
+
+                                        <ItemsControl.ItemContainerTheme>
+                                            <ControlTheme TargetType="ContentPresenter" x:DataType="vm:TimeMarkerViewModel">
+                                                <Setter Property="Canvas.Left" Value="{Binding PositionX}"/>
+                                            </ControlTheme>
+                                        </ItemsControl.ItemContainerTheme>
+                    
                                         <ItemsControl.ItemTemplate>
-                                            <DataTemplate>
-                                                <Border Margin="{Binding Scaleint}">
-                                                    <TextBlock Text="{Binding FormattedTime}"
-                                                           Foreground="White"
-                                                           VerticalAlignment="Center"
-                                                           Width="{Binding ScaleInterval}"
-                                                           >
-                                                    </TextBlock>
+                                            <DataTemplate DataType="vm:TimeMarkerViewModel">
+                                                <Grid>
+                                                    <TextBlock  Text="{Binding Label}"
+                                                                IsVisible="{Binding IsMajorTick}"
+                                                                Foreground="White"
+                                                                Margin="0,30,0,0"
+                                                    />
+                                                    <Grid  Classes.major="{Binding IsMajorTick}" Height="20" VerticalAlignment="Top">
+                                                        <Grid.Styles>
+                                                            <Style Selector="Grid">
+                                                                <Setter Property="Width" Value="1"/>
+                                                                <Setter Property="Background" Value="Gray"/>
+                                                            </Style>
+                                                            <Style Selector="Grid.major">
+                                                                <Setter Property="Width" Value="2"/>
+                                                                <Setter Property="Background" Value="White"/>
+                                                                <Setter Property="Margin" Value="0,0,0,30"/>
+                                                            </Style>
+                                                        </Grid.Styles>
+                                                    </Grid>
+                                                </Grid>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </Grid>
+                            </Border>
+                        </ScrollViewer>
+                        <Border Grid.Row="1" >
+                            <ScrollViewer x:Name="TimelineComponent" HorizontalScrollBarVisibility="Visible" VerticalScrollBarVisibility="Visible">
+                                <Grid>
+                                    <ItemsControl ItemsSource="{Binding Tracks}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate DataType="vm:TrackViewModel">
+                                                <Border Height="50" Background="#555555" BorderBrush="#444444" BorderThickness="0,0,0,1"
+                                                        Width="{Binding ParentViewModel.TotalWidth}"
+                                                        DragDrop.AllowDrop="True" DragDrop.DragEnter="Track_DragEnter" DragDrop.Drop="Track_Drop">
+                                                    <ItemsControl ItemsSource="{Binding Clips}">
+                                                        <ItemsControl.ItemTemplate>
+                                                            <DataTemplate DataType="vm:ClipViewModel">
+                                                                <v:ClipView PointerPressed="ClipPointerPressed"/>
+                                                            </DataTemplate>
+                                                        </ItemsControl.ItemTemplate>
+                                                        <ItemsControl.ItemsPanel>
+                                                            <ItemsPanelTemplate>
+                                                                <Canvas />
+                                                            </ItemsPanelTemplate>
+                                                        </ItemsControl.ItemsPanel>
+                                                    </ItemsControl>
+                                                                
                                                 </Border>
                                             </DataTemplate>
                                         </ItemsControl.ItemTemplate>
                                     </ItemsControl>
-                                </Border>
-                                
-                                <ItemsControl ItemsSource="{Binding Tracks}">
-                                    <ItemsControl.ItemTemplate>
-                                        <DataTemplate DataType="vm:TrackViewModel">
-                                            <Border Height="50" Background="#555555" BorderBrush="#444444" BorderThickness="0,0,0,1"
-                                                    Width="{Binding ParentViewModel.TotalWidth}"
-                                                    DragDrop.AllowDrop="True" DragDrop.DragEnter="Track_DragEnter" DragDrop.Drop="Track_Drop">
-                                                <ItemsControl ItemsSource="{Binding Clips}">
-                                                    <ItemsControl.ItemTemplate>
-                                                        <DataTemplate DataType="vm:ClipViewModel">
-                                                            <v:ClipView PointerPressed="ClipPointerPressed"/>
-                                                        </DataTemplate>
-                                                    </ItemsControl.ItemTemplate>
-                                                    <ItemsControl.ItemsPanel>
-                                                        <ItemsPanelTemplate>
-                                                            <Canvas />
-                                                        </ItemsPanelTemplate>
-                                                    </ItemsControl.ItemsPanel>
-                                                </ItemsControl>
-                                                
-                                            </Border>
-                                        </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
-                                </ItemsControl>
-
-                            </StackPanel>
-                            <Canvas  >
-                                <Rectangle Fill="Red" Width="2" Height="180" IsHitTestVisible="False">
-                                    <Canvas.Left>
-                                        <MultiBinding Converter="{StaticResource TimeSpanToPixelConverter}">
-                                            <Binding Path="CurrentTime"/>
-                                            <Binding Path="Scale"/>
-                                        </MultiBinding>
-                                    </Canvas.Left>
-                                </Rectangle>
-                            </Canvas>
-                        </Grid>
+                                    <Canvas>
+                                        <Rectangle Fill="Red" Width="2" Height="180" IsHitTestVisible="False">
+                                            <Canvas.Left>
+                                                <MultiBinding Converter="{StaticResource TimeSpanToPixelConverter}">
+                                                        <Binding Path="CurrentTime"/>
+                                                        <Binding Path="Scale"/>
+                                                </MultiBinding>
+                                            </Canvas.Left>
+                                        </Rectangle>
+                                    </Canvas>
+                                </Grid>
+                            </ScrollViewer>
+                        </Border>
                     </Grid>
-                </ScrollViewer>
+                </Grid>
+            </Grid>
         </Border>
-        <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="5" Margin="5">
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Background="Azure" Spacing="5" Margin="5">
             <TextBlock Text="Zoom:" VerticalAlignment="Center"/>
             <Button Content="-" Command="{Binding ZoomOutCommand}"/>
             <Button Content="+" Command="{Binding ZoomInCommand}"/>

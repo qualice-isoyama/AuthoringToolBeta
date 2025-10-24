@@ -48,9 +48,11 @@ namespace AuthoringToolBeta.ViewModels
             get => _scale;
             set
             {
-                _scale = value;
+                _scale = Math.Max(1.0, value);
                 OnPropertyChanged();
-                OnPropertyChanged(nameof(TotalWidth)); 
+                OnPropertyChanged(nameof(TotalWidth));
+                // スケールが変更されたら目盛りを再計算
+                UpdateTimeMarkers();
             }
         }
 
@@ -86,15 +88,17 @@ namespace AuthoringToolBeta.ViewModels
             Tracks.Add(new TrackViewModel("映像トラック 1",this));
             Tracks.Add(new TrackViewModel("音声トラック 1",this));
             Tracks.Add(new TrackViewModel("テロップトラック 1",this));
+            Tracks.Add(new TrackViewModel("演出トラック 1",this));
+            Tracks.Add(new TrackViewModel("フィルタトラック 1",this));
             Tracks.First().Clips.Add(new ClipViewModel(new ClipModel
             (
                 "DEFOeffect99.png",
                 "source/DEFOeffect99.png",
                 "image/png",
-                3,
+                2,
                 2
             ),Tracks.First()));
-            GenerateMarkers(TimeSpan.FromMinutes(1));
+            //GenerateMarkers(TimeSpan.FromMinutes(1));
             TimelineHierarchyVM = new TimelineHierarchyViewModel();
             // タイマーの初期化
             _timer = new DispatcherTimer
@@ -107,6 +111,7 @@ namespace AuthoringToolBeta.ViewModels
             StopCommand = new RelayCommand(_ => Stop());
             GoToStartCommand = new RelayCommand(_ => GoToStart());
             GoToEndCommand = new RelayCommand(_ => GoToEnd());
+            UpdateTimeMarkers();
         }
 
         // ドロップ操作に応じて新しいクリップを追加するメソッド
@@ -143,35 +148,6 @@ namespace AuthoringToolBeta.ViewModels
         {
             SelectClipCommand command = new SelectClipCommand(SelectedClips,this,clipToSelect,isCtrlPressed);
             UndoRedoManager.Do(command);
-            
-            /*
-            // Ctrlキーが押されていない場合(通常の単一クリック)
-            if (!isCtrlPressed)
-            {
-                for (int trackIdx = 0; trackIdx < Tracks.Count; trackIdx++)
-                {
-                    for (int clipIdx = 0; clipIdx < Tracks[trackIdx].Clips.Count; clipIdx++)
-                    {
-                        Tracks[trackIdx].Clips[clipIdx].IsSelected = false;
-                    }
-                    SelectedClips.Clear();
-                }
-            }
-            // クリックされたクリップの選択状態を反転
-            clipToSelect.IsSelected = !clipToSelect.IsSelected;
-            // 選択状態に応じて選択済みリストに追加/削除
-            if (clipToSelect.IsSelected)
-            {
-                if (!SelectedClips.Contains(clipToSelect))
-                {
-                    SelectedClips.Add(clipToSelect);
-                }
-            }
-            else
-            {
-                SelectedClips.Remove(clipToSelect);
-            }
-            */
         }
         private void ZoomIn()
         {
@@ -183,7 +159,7 @@ namespace AuthoringToolBeta.ViewModels
                     Tracks[trackIdx].Clips[clipIdx].UpdateClip();
                 }
             }
-            UpdateMarkerWindths();
+            //UpdateMarkerWindths();
         }
 
         private void ZoomOut()
@@ -196,7 +172,7 @@ namespace AuthoringToolBeta.ViewModels
                     Tracks[trackIdx].Clips[clipIdx].UpdateClip();
                 }
             }
-            UpdateMarkerWindths();
+            //UpdateMarkerWindths();
         }
 
         private void GenerateMarkers(TimeSpan totalDuration)
@@ -204,7 +180,7 @@ namespace AuthoringToolBeta.ViewModels
             TimeMarkers.Clear();
             for (TimeSpan time = TimeSpan.Zero; time <= totalDuration; time = time.Add(TimeSpan.FromSeconds(1)))
             {
-                TimeMarkers.Add(new TimeMarkerViewModel(time, Scale));
+                //TimeMarkers.Add(new TimeMarkerViewModel(time, Scale));
             }
         }
 
@@ -260,6 +236,38 @@ namespace AuthoringToolBeta.ViewModels
             // 再生中であれば停止してから移動
             if (IsPlaying) Stop();
             CurrentTime = 60.0; // 仮の総時間
+        }
+        // 目盛りを再計算するメソッド
+        private void UpdateTimeMarkers()
+        {
+            TimeMarkers.Clear();
+
+            // スケールに応じて、目盛りの間隔を決定する
+            double majorIntervalSeconds;
+            if (Scale > 150) majorIntervalSeconds = 1;      // すごくズームイン
+            else if (Scale > 75) majorIntervalSeconds = 2;  // ズームイン
+            else if (Scale > 30) majorIntervalSeconds = 5;  // 標準
+            else if (Scale > 10) majorIntervalSeconds = 10; // ズームアウト
+            else majorIntervalSeconds = 30;                 // すごくズームアウト
+
+            double minorIntervalSeconds = majorIntervalSeconds / 5.0; // 細かい目盛り
+            double totalDurationSeconds = 60.0; // 仮の総時間
+
+            for (double time = 0; time <= totalDurationSeconds; time += minorIntervalSeconds)
+            {
+                // 丸め誤差を吸収
+                time = Math.Round(time * 100) / 100.0;
+
+                bool isMajor = time % majorIntervalSeconds < 0.001;
+            
+                //var label = isMajor ? TimeSpan.FromSeconds(time).ToString(@"mm\:ss") : "";
+                var label = TimeSpan.FromSeconds(time).ToString(@"mm\:ss");
+                var position = (time - 0.12 ) * Scale;
+            
+                TimeMarkers.Add(new TimeMarkerViewModel(time, label, position, isMajor));
+            }
+
+            var test0 = TimeMarkers;
         }
     }
 }

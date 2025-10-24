@@ -1,0 +1,25 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             
+             x:Class="AuthoringToolBeta.Views.TimelineHierarchyView"
+             xmlns:vm="using:AuthoringToolBeta.ViewModels"
+             x:DataType="vm:TimelineViewModel">
+    <ScrollViewer>
+        <Border  BorderBrush="#333333" BorderThickness="1">
+            <StackPanel>
+                <Border Background="Transparent" Height="30"/>
+                <ListBox DataContext="{Binding TimelineHierarchyVM}" ItemsSource="{Binding timelineHierarchy}" Margin="5"
+                         Background="Transparent" BorderThickness="0,0,0,1">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Name}" Margin="5"/>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </StackPanel>
+        </Border>
+    </ScrollViewer>
+</UserControl>
