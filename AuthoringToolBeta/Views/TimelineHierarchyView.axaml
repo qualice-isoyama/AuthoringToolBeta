@@ -8,14 +8,25 @@
              xmlns:vm="using:AuthoringToolBeta.ViewModels"
              x:DataType="vm:TimelineViewModel">
     <ScrollViewer>
-        <Border  BorderBrush="#333333" BorderThickness="1">
+        <Border  Background="#555555" BorderBrush="#333333" BorderThickness="1">
             <StackPanel>
                 <Border Background="Transparent" Height="30"/>
-                <ListBox DataContext="{Binding TimelineHierarchyVM}" ItemsSource="{Binding timelineHierarchy}" Margin="5"
+                <ListBox DataContext="{Binding TimelineHierarchyVM}" ItemsSource="{Binding timelineHierarchy}" Margin="0"
                          Background="Transparent" BorderThickness="0,0,0,1">
                     <ListBox.ItemTemplate>
                         <DataTemplate>
-                            <TextBlock Text="{Binding Name}" Margin="5"/>
+                            <Border BorderThickness="0,0,0,1" BorderBrush="#333333" Margin="0">
+                                <Grid ColumnDefinitions="Auto,Auto,*">
+                                    <Button Grid.Column="0" Background="Transparent">
+                                        <Image Source="/Assets/Visible.png"
+                                               Width="20"
+                                               Height="20"
+                                               Classes="icon-style" />
+                                    </Button>
+                                    <TextBlock Grid.Column="1" Text="{Binding Name}" Margin="0,5" Foreground="AliceBlue"/>
+                                    <Button Grid.Column="2" Content="↓" Background="Transparent"/>
+                                </Grid>
+                            </Border>
                         </DataTemplate>
                     </ListBox.ItemTemplate>
                 </ListBox>

@@ -1,16 +1,13 @@
-﻿using AuthoringToolBeta.Commands;
-using AuthoringToolBeta.Model;
-using AuthoringToolBeta.Services;
-using AuthoringToolBeta.Views;
-using Avalonia.Controls;
-using DynamicData.Tests;
-using ReactiveUI;
-using System;
+﻿using System.Reactive;
+using System.Windows.Input;
+using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Reactive;
-using System.Threading.Tasks;
-using System.Windows.Input;
+using ReactiveUI;
+using Avalonia.Controls;
+using AuthoringToolBeta.Model;
+using AuthoringToolBeta.Commands;
+using AuthoringToolBeta.Services;
 
 namespace AuthoringToolBeta.ViewModels
 {
@@ -28,6 +25,8 @@ namespace AuthoringToolBeta.ViewModels
         public TimelineViewModel Timeline { get; }
         public ICommand SaveCommand { get; }
         public ICommand OpenCommand { get; }
+        public ICommand ExportCommand { get; }
+        public ICommand PlayPauseToggleCommand { get; }
         public ReactiveCommand<Unit, Unit> OpenTestWindow { get; }
         private readonly Window _owner;
         private readonly ProjectService _projectService;
@@ -83,6 +82,8 @@ namespace AuthoringToolBeta.ViewModels
             // ...
             SaveCommand = new MyAsyncRelayCommand(_ => ExecuteSave());
             OpenCommand = new MyAsyncRelayCommand(_ => ExecuteOpen());
+            ExportCommand = new MyAsyncRelayCommand( _ => ExecuteExport());
+            PlayPauseToggleCommand = new RelayCommand(_ => ExecutePlayPauseToggle());
             //OpenTestWindow = ReactiveCommand.Create(() =>
             //{
             //    try
@@ -108,6 +109,23 @@ namespace AuthoringToolBeta.ViewModels
         {
             await _projectService.LoadProjectAsync(this.Timeline, _owner.StorageProvider);
         }
+        private async Task ExecuteExport()
+        {
+            await _projectService.ExportProjectAsync(this.Timeline, _owner.StorageProvider);
+        }
+
+        private void ExecutePlayPauseToggle()
+        {
+            Timeline.IsPlaying = !Timeline.IsPlaying;
+            if (Timeline.IsPlaying)
+            {
+                Timeline.Timer.Start();
+            }
+            else
+            {
+                Timeline.Timer.Stop ();
+            }
+        }
 
         public void exchangePosHierarchyItem(ObservableCollection<HierarchyItemViewModel> HierarchyInp,HierarchyItemViewModel exchangeFromHM, HierarchyItemViewModel exchangeToHM)
         {
@@ -117,5 +135,6 @@ namespace AuthoringToolBeta.ViewModels
             HierarchyInp[exchangeToIdx] = exchangeFromHM;
         
         }
+        
     }
 }

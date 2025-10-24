@@ -68,4 +68,40 @@ public class ProjectService
             }
         }
     }
+    public async Task ExportProjectAsync(TimelineViewModel timelineViewModel, IStorageProvider storageProvider)
+    {
+        // 1. 保存ファイルダイアログを表示
+        var file = await storageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
+        {
+            Title = "Export Project to JSON",
+            SuggestedFileName = "scene_data.json", // デフォルトのファイル名
+            FileTypeChoices = new[] { new FilePickerFileType("JSON Files") { Patterns = new[] { "*.json" } } }
+        });
+
+        if (file is null) return; // キャンセルされた
+
+        // 2. ViewModelからエクスポート用のModelにデータを変換
+        var exportModel = new ProjectExportModel
+        {
+            TotalDuration = 60.0, // 仮の総時間
+            Tracks = timelineViewModel.Tracks.Select(trackVm => new TrackExportModel
+            {
+                TrackName = trackVm.TrackName,
+                Clips = trackVm.Clips.Select(clipVm => new ClipExportModel
+                {
+                    AssetName = clipVm.ClipItemName,
+                    StartTime = clipVm.StartTime,
+                    Duration = clipVm.Duration
+                }).ToList()
+            }).ToList()
+        };
+
+        // 3. JSONにシリアライズ (読みやすいようにインデントする)
+        var jsonString = JsonSerializer.Serialize(exportModel, new JsonSerializerOptions { WriteIndented = true });
+
+        // 4. ファイルに書き込み
+        await using var stream = await file.OpenWriteAsync();
+        await using var streamWriter = new StreamWriter(stream);
+        await streamWriter.WriteAsync(jsonString);
+    }
 }

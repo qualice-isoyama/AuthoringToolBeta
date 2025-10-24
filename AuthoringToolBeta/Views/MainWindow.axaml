@@ -1,4 +1,4 @@
-﻿<UserControl xmlns="https://github.com/avaloniaui"
+﻿<Window xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -9,13 +9,25 @@
              
              xmlns:local="using:AuthoringToolBeta.Views"
              >
+    <Window.KeyBindings>
+        <KeyBinding Gesture="Space" Command="{Binding PlayPauseToggleCommand}"/>
+        
+        <KeyBinding Gesture="Ctrl+Z" Command="{Binding Timeline.UndoRedoManager.UndoCommand}"/>
+        
+        <KeyBinding Gesture="Ctrl+Shift+Z" Command="{Binding Timeline.UndoRedoManager.RedoCommand}"/>
+        <KeyBinding Gesture="Ctrl+Y" Command="{Binding Timeline.UndoRedoManager.RedoCommand}"/>
 
-  <Grid RowDefinitions="Auto, *, Auto" ColumnDefinitions="200, *, 250">
+        <KeyBinding Gesture="Ctrl+S" Command="{Binding SaveCommand}"/>
+    </Window.KeyBindings>
 
+    <Grid RowDefinitions="Auto, *, Auto" ColumnDefinitions="200, *, 250">
       <Menu Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3">
           <MenuItem Header="_File">
               <MenuItem Header="_Open..." Command="{Binding OpenCommand}"/>
               <MenuItem Header="_Save As..." Command="{Binding SaveCommand}"/>
+              <Separator/>
+              <MenuItem Header="_Export..." Command="{Binding ExportCommand}"/>
+              <Separator/>
               <MenuItem Header="_Open TestWindow" Command="{Binding OpenTestWindow}"/>
           </MenuItem>
           <MenuItem Header="_Edit">
@@ -23,16 +35,24 @@
               <MenuItem x:Name="Redo" Header="_Redo" Command="{Binding Timeline.UndoRedoManager.RedoCommand}" IsEnabled="{Binding Timeline.UndoRedoManager.CanRedo}" HotKey="Q"/>
           </MenuItem>
       </Menu>
-
-    <ListBox Grid.Row="1" Grid.Column="0" ItemsSource="{Binding Assets}" Margin="5">
-        <ListBox.ItemTemplate>
-            <DataTemplate>
-                <TextBlock Text="{Binding HModel.Name}" Margin="5" 
-                           PointerPressed="Asset_PointerPressed"
-                           DragDrop.AllowDrop="True" DragDrop.DragEnter="Asset_Track_DragEnter" DragDrop.Drop="Asset_Track_Drop"/>
-            </DataTemplate>
-         </ListBox.ItemTemplate>
-    </ListBox>
+        <Border Grid.Row="1" Grid.Column="0" Background="#888888">
+            <ListBox  ItemsSource="{Binding Assets}" VerticalAlignment="Top">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Border Background="#888888">
+                            <TextBlock Text="{Binding HModel.Name}"
+                                   PointerPressed="Asset_PointerPressed" Background="#888888" Foreground="AliceBlue"
+                                   DragDrop.AllowDrop="True" DragDrop.DragEnter="Asset_Track_DragEnter" DragDrop.Drop="Asset_Track_Drop"/>
+                        </Border>
+                    </DataTemplate>
+                 </ListBox.ItemTemplate>
+                <ListBox.Styles>
+                    <Style Selector="ListBoxItem">
+                        <Setter Property="Background" Value="#888888"/>
+                    </Style>
+                </ListBox.Styles>
+            </ListBox>
+        </Border>
     <Grid Grid.Row="1" Grid.Column="1" ColumnDefinitions="Auto, *" RowDefinitions="400,*">
         <Border Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2"
                 Background="DarkGray"
@@ -44,17 +64,17 @@
     </Grid>
 
     <Border Grid.Row="1" Grid.Column="2"
-            Background="LightSteelBlue"
+            Background="#888888"
             BorderBrush="Black" BorderThickness="1">
-        <TextBlock Text="プロパティエリア" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+        <TextBlock Text="プロパティエリア" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="AliceBlue"/>
     </Border>
 
-    <Border Grid.Row="2" Grid.Column="1"
-            Background="LightGray"
+    <Border Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3"
+            Background="#666666"
             Height="25"
             BorderBrush="Black" BorderThickness="1">
-        <TextBlock Text="ステータスバー" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+        <TextBlock Text="ステータスバー" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="AliceBlue"/>
     </Border>
 
 </Grid>
-</UserControl>
+</Window>

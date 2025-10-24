@@ -41,7 +41,7 @@ namespace AuthoringToolBeta.ViewModels
         }
         public ObservableCollection<ClipViewModel> SelectedClips { get; } = new();
         // タイムライン全体の総ピクセル幅 (仮に60秒固定とする)
-        public double TotalWidth => 100.0 * Scale;
+        public double TotalWidth => 60.0 * Scale;
         private double _scale = 100.0; // デフォルト: 1秒 = 100ピクセル
         public double Scale
         {
@@ -68,6 +68,11 @@ namespace AuthoringToolBeta.ViewModels
             }
         }
         private readonly DispatcherTimer _timer;
+
+        public DispatcherTimer Timer
+        {
+            get => _timer;
+        }
         private bool _isPlaying;
 
         public bool IsPlaying

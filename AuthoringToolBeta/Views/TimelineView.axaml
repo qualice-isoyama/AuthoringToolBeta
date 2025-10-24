@@ -105,7 +105,7 @@
                                         </ItemsControl.ItemTemplate>
                                     </ItemsControl>
                                     <Canvas>
-                                        <Rectangle Fill="Red" Width="2" Height="180" IsHitTestVisible="False">
+                                        <Rectangle Fill="Red" Width="2" Height="100000" IsHitTestVisible="False">
                                             <Canvas.Left>
                                                 <MultiBinding Converter="{StaticResource TimeSpanToPixelConverter}">
                                                         <Binding Path="CurrentTime"/>
@@ -121,7 +121,7 @@
                 </Grid>
             </Grid>
         </Border>
-        <StackPanel Grid.Row="1" Orientation="Horizontal" Background="Azure" Spacing="5" Margin="5">
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Background="#888888" Spacing="5" >
             <TextBlock Text="Zoom:" VerticalAlignment="Center"/>
             <Button Content="-" Command="{Binding ZoomOutCommand}"/>
             <Button Content="+" Command="{Binding ZoomInCommand}"/>
