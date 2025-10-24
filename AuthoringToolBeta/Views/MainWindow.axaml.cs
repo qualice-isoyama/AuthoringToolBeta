@@ -12,7 +12,9 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
         // ViewModelのインスタンスを作成し、DataContextに設定
-        this.DataContext = new MainWindowViewModel(this);
+        DataContext = new MainWindowViewModel(this);
+        HotKeyManager.SetHotKey(Undo, new KeyGesture(Key.Z, KeyModifiers.Control));
+        HotKeyManager.SetHotKey(Redo, new KeyGesture(Key.Q));
     }
     private async void Asset_PointerPressed(object? sender, PointerPressedEventArgs e)
     {

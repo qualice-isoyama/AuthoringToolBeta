@@ -39,19 +39,7 @@ namespace AuthoringToolBeta.ViewModels
                 }
             }
         }
-        private ClipViewModel? _selectedClip;
-        public ClipViewModel? SelectedClip
-        {
-            get => _selectedClip;
-            set
-            {
-                if (_selectedClip != value)
-                {
-                    _selectedClip = value;
-                    OnPropertyChanged(); 
-                }
-            }
-        }
+        public ObservableCollection<ClipViewModel> SelectedClips { get; } = new();
         // タイムライン全体の総ピクセル幅 (仮に60秒固定とする)
         public double TotalWidth => 100.0 * Scale;
         private double _scale = 100.0; // デフォルト: 1秒 = 100ピクセル
@@ -151,27 +139,39 @@ namespace AuthoringToolBeta.ViewModels
             trvm.Clips[trvm.Clips.IndexOf(cvm)].LeftMarginThickness = new Thickness(positionX, 0, 0, 0);
         }
         // クリップを選択するためのメソッド
-        public void SelectClip(ClipViewModel clipToSelect)
+        public void SelectClip(ClipViewModel clipToSelect, bool isCtrlPressed)
         {
-            // 選択されていたクリップから別のクリップを選択状態にする
-            if (SelectedClip != null && SelectedClip != clipToSelect)
-            {
-                SelectedClip.IsSelected = false;
-            }
-            SelectedClip = clipToSelect;
-            if (SelectedClip != null)
-            {
-                SelectedClip.IsSelected = true;
-            }
+            SelectClipCommand command = new SelectClipCommand(SelectedClips,this,clipToSelect,isCtrlPressed);
+            UndoRedoManager.Do(command);
             
-            // 全てのクリップをチェックして、選択状態を正しく反映させる（念のため）
-            foreach (TrackViewModel track in Tracks)
+            /*
+            // Ctrlキーが押されていない場合(通常の単一クリック)
+            if (!isCtrlPressed)
             {
-                foreach (ClipViewModel clip in track.Clips)
+                for (int trackIdx = 0; trackIdx < Tracks.Count; trackIdx++)
                 {
-                    clip.IsSelected = (clip == SelectedClip);
+                    for (int clipIdx = 0; clipIdx < Tracks[trackIdx].Clips.Count; clipIdx++)
+                    {
+                        Tracks[trackIdx].Clips[clipIdx].IsSelected = false;
+                    }
+                    SelectedClips.Clear();
                 }
             }
+            // クリックされたクリップの選択状態を反転
+            clipToSelect.IsSelected = !clipToSelect.IsSelected;
+            // 選択状態に応じて選択済みリストに追加/削除
+            if (clipToSelect.IsSelected)
+            {
+                if (!SelectedClips.Contains(clipToSelect))
+                {
+                    SelectedClips.Add(clipToSelect);
+                }
+            }
+            else
+            {
+                SelectedClips.Remove(clipToSelect);
+            }
+            */
         }
         private void ZoomIn()
         {
@@ -260,10 +260,6 @@ namespace AuthoringToolBeta.ViewModels
             // 再生中であれば停止してから移動
             if (IsPlaying) Stop();
             CurrentTime = 60.0; // 仮の総時間
-        }
-        public void MoveClip(MoveClipCommand command)
-        {
-            UndoRedoManager.Do(command);
         }
     }
 }

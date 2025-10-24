@@ -11,12 +11,9 @@ namespace AuthoringToolBeta.Views;
 public partial class ClipView : UserControl
 {
     private bool _isDragging = false;
-    private Point _dragStartPoint;
-    private Point _beforePoint;
-    private double _originalStartTime;
-    private double _originalDuration;
-    private double _newStartTime;
-    private double _newDuration;
+    private bool _isClipping = false;
+    private bool _isCtrlPressed = false;
+    private Point _oldPosition;
     public enum DragMode { None, Move, ResizeLeft, ResizeRight }
     private DragMode _currentDragMode = DragMode.None;
     public ClipView()
@@ -25,9 +22,38 @@ public partial class ClipView : UserControl
     }
     private async void Clip_PointerPressed(object? sender, PointerPressedEventArgs e)
     {
-        if (DataContext is ClipViewModel vm && e.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
+        
+        if (DataContext is ClipViewModel cvm && e.GetCurrentPoint(this).Properties.IsLeftButtonPressed && sender is Border clipBody)
         {
-            vm.SelectCommand.Execute(vm);
+            // Ctrl???????? (Mac?Command??????)
+            bool isCtrlPressed = (e.KeyModifiers & KeyModifiers.Control) != 0;
+            _isCtrlPressed = isCtrlPressed;
+            // Ctrl?????????????????????????????????????????
+            if (isCtrlPressed)
+            {
+                _isClipping = true;
+                clipBody.PointerReleased += Clip_PointerReleased;
+                cvm.ParentViewModel.ParentViewModel.SelectClip(cvm, isCtrlPressed);
+            }
+            else
+            {
+                // ViewModel????????????
+                cvm.ParentViewModel.ParentViewModel.SelectClip(cvm, isCtrlPressed);
+            }
+        }
+    }
+
+    private void Clip_PointerReleased(object? sender, PointerReleasedEventArgs e)
+    {
+        ClipViewModel cvm =  DataContext as ClipViewModel;
+        _isClipping = false;
+        if (sender is Border clipBody)
+        {
+            if (!_isClipping)
+            {
+                cvm.ParentViewModel.ParentViewModel.SelectClip(cvm, _isCtrlPressed);
+            }
+            clipBody.PointerReleased -= Clip_PointerReleased;
         }
     }
 
@@ -36,10 +62,10 @@ public partial class ClipView : UserControl
         if (sender is Border border && e.GetCurrentPoint(this).Properties.IsLeftButtonPressed &&
             DataContext is ClipViewModel cvm)
         {
-            _dragStartPoint = e.GetPosition(null);
-            _beforePoint = e.GetPosition(null);
-            _originalStartTime = cvm.StartTime;
-            _originalDuration = cvm.Duration;
+            _oldPosition = e.GetPosition(null);
+            // ??????????????StartTime?Duration
+            cvm.DragStartTime = cvm.StartTime;
+            cvm.DragStartDuration = cvm.Duration;
             _isDragging = true;
             _currentDragMode = DragMode.ResizeLeft;
             e.Pointer.Capture(border);
@@ -55,10 +81,10 @@ public partial class ClipView : UserControl
         if (sender is Border border && e.GetCurrentPoint(this).Properties.IsLeftButtonPressed &&
             DataContext is ClipViewModel cvm)
         {
-            _dragStartPoint = e.GetPosition(null);
-            _beforePoint = e.GetPosition(null);
-            _originalStartTime = cvm.StartTime;
-            _originalDuration = cvm.Duration;
+            _oldPosition = e.GetPosition(null);
+            // ??????????????StartTime?Duration
+            cvm.DragStartTime = cvm.StartTime;
+            cvm.DragStartDuration = cvm.Duration;
             _isDragging = true;
             _currentDragMode = DragMode.ResizeRight;
             e.Pointer.Capture(border);
@@ -71,7 +97,7 @@ public partial class ClipView : UserControl
     {
         if (DataContext is ClipViewModel cvm && _isDragging)
         {
-            UpdateClip(e.GetPosition(null), cvm);
+            UpdateClip(e.GetPosition(null), cvm.ParentViewModel.ParentViewModel);
         }
     }
 
@@ -79,13 +105,7 @@ public partial class ClipView : UserControl
     {
         if (sender is Border border && border.DataContext is ClipViewModel cvm)
         {
-            ResizeClipCommand command = new ResizeClipCommand(
-                cvm,
-                _originalStartTime,
-                _newStartTime,
-                _originalDuration,
-                cvm.EndTime - _newStartTime
-            );
+            ResizeClipCommand command = new ResizeClipCommand(cvm.ParentViewModel.ParentViewModel.SelectedClips);
             cvm.ParentViewModel.ParentViewModel.UndoRedoManager.Do(command);
             _isDragging = false;
             _currentDragMode = DragMode.None;
@@ -96,37 +116,56 @@ public partial class ClipView : UserControl
         }
     }
 
-    public void UpdateClip(Point currentPoint, ClipViewModel cvm)
+    public void UpdateClip(Point currentPosition, TimelineViewModel tvm)
     {
-        double newStartTime = cvm.StartTime;
-        var deltaX =  currentPoint.X - _beforePoint.X;
-        var deltaTime = deltaX / cvm.ParentViewModel.ParentViewModel.Scale;
-        if (_currentDragMode == DragMode.ResizeLeft)
+        // ??????????????
+        double deltaTime =  (currentPosition.X - _oldPosition.X) / tvm.Scale;
+        
+        for (int selectClipIdx = 0; selectClipIdx < tvm.SelectedClips.Count; selectClipIdx++)
         {
-            var originalStartTime = cvm.StartTime;
-            newStartTime = originalStartTime + deltaTime;
-            var originalEndTime = _originalStartTime + _originalDuration;
-            newStartTime= Math.Max(0, newStartTime);
-            newStartTime = Math.Min(newStartTime, originalEndTime - 1);
-            if (newStartTime < originalEndTime - 1 && (cvm.EndTime - cvm.StartTime) > 1)
+            // ????????????
+            var clip =  tvm.SelectedClips[selectClipIdx];
+            
+            if (_currentDragMode == DragMode.ResizeLeft)
             {
-                cvm.StartTime = newStartTime;
-                cvm.LeftMarginThickness = new Thickness(newStartTime * cvm.ParentViewModel.ParentViewModel.Scale, 0, 0, 0);
-                if (cvm.StartTime > 0)
+                //????????????????????
+                
+                // ????????
+                // ????????
+                double oldStartTime = clip.StartTime;
+                // ???????? 
+                double newStartTime = oldStartTime + deltaTime;
+                // ???????
+                double originalEndTime = clip.DragStartTime + clip.DragStartDuration;
+                newStartTime= Math.Max(0, newStartTime);
+                newStartTime = Math.Min(newStartTime, clip.EndTime - 1);
+                
+                if (newStartTime < originalEndTime - 1 && (clip.EndTime - clip.StartTime) > 1)
                 {
-                    cvm.Duration = cvm.EndTime - cvm.StartTime;
-                    cvm.Duration = Math.Max(1, cvm.Duration);
+                    clip.StartTime = newStartTime;
+                    clip.LeftMarginThickness = new Thickness(newStartTime * clip.ParentViewModel.ParentViewModel.Scale, 0, 0, 0);
+                    if (clip.StartTime > 0)
+                    {
+                        clip.Duration = clip.EndTime - clip.StartTime;
+                        clip.Duration = Math.Max(1, clip.Duration);
+                    }
+                }
+                else
+                {
+                    if (newStartTime >= originalEndTime - 1 )
+                    {
+                        //throw new InvalidOperationException("left Handle Validation Error");
+                    }
                 }
             }
+            else if (_currentDragMode == DragMode.ResizeRight)
+            {
+                // ????????????????
+                clip.Duration += deltaTime;
+                clip.Duration = Math.Max(1, clip.Duration);
+                clip.EndTime = clip.StartTime + clip.Duration;
+            }
         }
-        else if (_currentDragMode == DragMode.ResizeRight)
-        {
-            cvm.Duration += deltaTime;
-            cvm.Duration = Math.Max(1, cvm.Duration);
-            cvm.EndTime = cvm.StartTime + cvm.Duration;
-        }
-        _newStartTime = cvm.StartTime;
-        _newDuration = cvm.Duration;
-        _beforePoint = currentPoint;
+        _oldPosition = currentPosition;
     }
 }

@@ -9,7 +9,8 @@
              xmlns:c="using:AuthoringToolBeta.Converters"
              xmlns:vm="using:AuthoringToolBeta.ViewModels"
              x:DataType="vm:ClipViewModel"
-             x:Name="ClipViewRoot">
+             x:Name="ClipViewRoot"
+             KeyBindings="">
     
     <UserControl.Resources>
         <c:CalculateDurationConverter x:Key="CalculateDurationConverter" />

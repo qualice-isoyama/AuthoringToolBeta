@@ -15,7 +15,6 @@ namespace AuthoringToolBeta.ViewModels
             get => _parentViewModel; 
             set => this.RaiseAndSetIfChanged(ref _parentViewModel, value);
         }
-        public ICommand SelectCommand { get; }
         private ClipModel _clipItem;
         public ClipModel ClipItem
         {
@@ -62,7 +61,7 @@ namespace AuthoringToolBeta.ViewModels
             set =>  this.RaiseAndSetIfChanged(ref _leftMarginThickness, value);
         }
         private double _startTime;
-        public double StartTime // PositionX から変更
+        public double StartTime 
         {
             get => _startTime;
             set => this.RaiseAndSetIfChanged(ref _startTime, value);
@@ -77,7 +76,7 @@ namespace AuthoringToolBeta.ViewModels
         }
 
         private double _duration;
-        public double Duration // Width から変更
+        public double Duration
         {
             get => _duration;
             set => this.RaiseAndSetIfChanged(ref _duration, value);
@@ -88,6 +87,29 @@ namespace AuthoringToolBeta.ViewModels
         {
             get => _isSelected;
             set => this.RaiseAndSetIfChanged(ref _isSelected, value);
+        }
+
+        private double _beforePos;
+
+        public double BeforePos
+        {
+            get => _beforePos;
+            set => this.RaiseAndSetIfChanged(ref _beforePos, value);
+        }
+        private double _dragStartTime;
+
+        public double DragStartTime
+        {
+            get => _dragStartTime;
+            set => this.RaiseAndSetIfChanged(ref _dragStartTime, value);
+        }
+
+        private double _dragStartDuration;
+
+        public double DragStartDuration
+        {
+            get => _dragStartDuration;
+            set => this.RaiseAndSetIfChanged(ref _dragStartDuration, value);
         }
         
         public ClipViewModel(ClipModel model)
@@ -100,6 +122,8 @@ namespace AuthoringToolBeta.ViewModels
             EndTime = model.StartTime + model.Duration;
             Duration = model.Duration;
             LeftMarginThickness = new Thickness(model.StartTime * ParentViewModel.ParentViewModel.Scale, 0, 0, 0);
+            DragStartTime = model.StartTime;
+            DragStartDuration = model.Duration;
         }
 
         public ClipViewModel(ClipModel model, TrackViewModel parent)
@@ -113,8 +137,9 @@ namespace AuthoringToolBeta.ViewModels
             EndTime = model.StartTime + model.Duration;
             Duration = model.Duration;
             LeftMarginThickness = new Thickness(model.StartTime * ParentViewModel.ParentViewModel.Scale, 0, 0, 0);
+            DragStartTime = model.StartTime;
+            DragStartDuration = model.Duration;
             IsSelected = false;
-            SelectCommand = new RelayCommand(_ => _parentViewModel.ParentViewModel.SelectClip(this));
         }
         public ClipModel ToModel()
         {

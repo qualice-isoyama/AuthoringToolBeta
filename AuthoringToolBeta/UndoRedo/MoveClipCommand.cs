@@ -1,35 +1,55 @@
-﻿using AuthoringToolBeta.ViewModels;
+﻿using System.Collections.ObjectModel;
+using System.Linq;
+using AuthoringToolBeta.ViewModels;
 using Avalonia;
 
 namespace AuthoringToolBeta.UndoRedo
 {
     public class MoveClipCommand : IUndoableCommand
     {
-        private readonly ClipViewModel _targetClip;
-        private readonly double _oldStartTime;
-        private readonly double _newStartTime;
+        private readonly ObservableCollection<ClipViewModel> _targetClips;
+        private readonly ObservableCollection<double> _oldStartTimes;
+        private readonly ObservableCollection<double> _newStartTimes;
+        private readonly double _scale;
 
-        public MoveClipCommand(ClipViewModel targetClip, double oldStartTime, double newStartTime)
+        public MoveClipCommand(ObservableCollection<ClipViewModel> targetClip)
         {
-            _targetClip = targetClip;
-            _oldStartTime = oldStartTime;
-            _newStartTime = newStartTime;
+            if (targetClip.First() != null)
+            {
+                _scale = targetClip.First().ParentViewModel.ParentViewModel.Scale;
+                _targetClips = targetClip;
+                _oldStartTimes = new();
+                _newStartTimes = new();
+                for (int clipIdx = 0; clipIdx < targetClip.Count; clipIdx++)
+                {
+                    // ドラッグ開始時（コマンド実行前）の開始時間
+                    _oldStartTimes.Add(_targetClips[clipIdx].DragStartTime);
+                    // ドラッグ終了後（コマンド実行後）の開始時間
+                    _newStartTimes.Add(_targetClips[clipIdx].StartTime);
+                }
+            }
         }
 
         public void Execute()
         {
-            _targetClip.StartTime = _newStartTime;
-            _targetClip.EndTime = _newStartTime + _targetClip.Duration;
-            _targetClip.LeftMarginThickness =
-                new Thickness(_targetClip.StartTime * _targetClip.ParentViewModel.ParentViewModel.Scale, 0, 0, 0);
+            for (int clipIdx = 0; clipIdx < _targetClips.Count; clipIdx++)
+            {
+                _targetClips[clipIdx].StartTime = _newStartTimes[clipIdx];
+                _targetClips[clipIdx].EndTime = _newStartTimes[clipIdx] + _targetClips[clipIdx].Duration;
+                _targetClips[clipIdx].LeftMarginThickness = new Thickness(
+                    _targetClips[clipIdx].StartTime * _scale, 0, 0, 0);
+            }
         }
 
         public void Unexecute()
         {
-            _targetClip.StartTime = _oldStartTime;
-            _targetClip.EndTime = _oldStartTime + _targetClip.Duration;
-            _targetClip.LeftMarginThickness =
-                new Thickness(_targetClip.StartTime * _targetClip.ParentViewModel.ParentViewModel.Scale, 0, 0, 0);
+            for (int clipIdx = 0; clipIdx < _targetClips.Count; clipIdx++)
+            {
+                _targetClips[clipIdx].StartTime = _oldStartTimes[clipIdx];
+                _targetClips[clipIdx].EndTime = _oldStartTimes[clipIdx] + _targetClips[clipIdx].Duration;
+                _targetClips[clipIdx].LeftMarginThickness = new Thickness(
+                    _targetClips[clipIdx].StartTime * _scale, 0, 0, 0);
+            }
         }
     }
 }

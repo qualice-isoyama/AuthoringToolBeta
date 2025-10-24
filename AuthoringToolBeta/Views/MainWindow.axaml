@@ -19,8 +19,8 @@
               <MenuItem Header="_Open TestWindow" Command="{Binding OpenTestWindow}"/>
           </MenuItem>
           <MenuItem Header="_Edit">
-              <MenuItem Header="_Undo" Command="{Binding Timeline.UndoRedoManager.UndoCommand}" IsEnabled="{Binding Timeline.UndoRedoManager.CanUndo}"/>
-              <MenuItem Header="_Redo" Command="{Binding Timeline.UndoRedoManager.RedoCommand}" IsEnabled="{Binding Timeline.UndoRedoManager.CanRedo}"/>
+              <MenuItem x:Name="Undo" Header="_Undo" Command="{Binding Timeline.UndoRedoManager.UndoCommand}" IsEnabled="{Binding Timeline.UndoRedoManager.CanUndo}" HotKey="Ctrl+Z"/>
+              <MenuItem x:Name="Redo" Header="_Redo" Command="{Binding Timeline.UndoRedoManager.RedoCommand}" IsEnabled="{Binding Timeline.UndoRedoManager.CanRedo}" HotKey="Q"/>
           </MenuItem>
       </Menu>
 

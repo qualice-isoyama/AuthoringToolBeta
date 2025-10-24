@@ -1,51 +1,65 @@
-﻿using AuthoringToolBeta.ViewModels;
-using AuthoringToolBeta.Views;
+﻿using System.Collections.ObjectModel;
+using System.Linq;
+using AuthoringToolBeta.ViewModels;
 using Avalonia;
 
 namespace AuthoringToolBeta.UndoRedo
 {
     public class ResizeClipCommand : IUndoableCommand
     {
-        private readonly ClipViewModel _targetClip;
-        private readonly ClipView.DragMode _dragMode;
-        private readonly double _oldStartTime;
-        private readonly double _newStartTime;
-        private readonly double _oldDuration;
-        private readonly double _newDuration;
+        private readonly ObservableCollection<ClipViewModel> _targetClips;
+        private readonly ObservableCollection<double> _oldStartTimes;
+        private readonly ObservableCollection<double> _newStartTimes;
+        private readonly ObservableCollection<double> _oldDurations;
+        private readonly ObservableCollection<double> _newDurations;
+        private readonly double _scale;
 
         public ResizeClipCommand(
-            ClipViewModel targetClip, 
-            double oldStartTime, 
-            double newStartTime,
-            double oldDuration, 
-            double newDuration)
+            ObservableCollection<ClipViewModel> targetClip)
         {
-            _targetClip = targetClip;
-            _oldStartTime = oldStartTime;
-            _newStartTime = newStartTime;
-            _oldDuration = oldDuration;
-            _newDuration = newDuration;
+            if (targetClip.First() != null)
+            {
+                _scale = targetClip.First().ParentViewModel.ParentViewModel.Scale;
+                _targetClips = targetClip;
+                _oldStartTimes = new();
+                _newStartTimes = new();
+                _oldDurations = new();
+                _newDurations = new();
+                for (int clipIdx = 0; clipIdx < targetClip.Count; clipIdx++)
+                {
+                    _oldStartTimes.Add(_targetClips[clipIdx].DragStartTime);
+                    _newStartTimes.Add(_targetClips[clipIdx].StartTime);
+                    _oldDurations.Add(_targetClips[clipIdx].DragStartDuration);
+                    _newDurations.Add(_targetClips[clipIdx].Duration);
+                }
+            }
         }
 
         public void Execute()
         {
-            _targetClip.StartTime = _newStartTime;
-            _targetClip.EndTime = _newStartTime + _newDuration;
-            _targetClip.LeftMarginThickness =
-                new Thickness(_targetClip.StartTime * _targetClip.ParentViewModel.ParentViewModel.Scale, 0, 0, 0);
-            if (_newStartTime > 0)
+            for (int clipIdx = 0; clipIdx < _targetClips.Count; clipIdx++)
             {
-                _targetClip.Duration = _newDuration;
+                _targetClips[clipIdx].StartTime = _newStartTimes[clipIdx];
+                _targetClips[clipIdx].EndTime = _newStartTimes[clipIdx] + _newDurations[clipIdx];
+                _targetClips[clipIdx].LeftMarginThickness = new Thickness(
+                    _targetClips[clipIdx].StartTime * _scale, 0, 0, 0);
+                if (_newStartTimes[clipIdx] > 0)
+                {
+                    _targetClips[clipIdx].Duration = _newDurations[clipIdx];
+                }
             }
         }
 
         public void Unexecute()
         {
-            _targetClip.StartTime = _oldStartTime;
-            _targetClip.EndTime = _oldStartTime + _oldDuration;
-            _targetClip.LeftMarginThickness =
-                new Thickness(_oldStartTime * _targetClip.ParentViewModel.ParentViewModel.Scale, 0, 0, 0);
-            _targetClip.Duration = _oldDuration;
+            for (int clipIdx = 0; clipIdx < _targetClips.Count; clipIdx++)
+            {
+                _targetClips[clipIdx].StartTime = _oldStartTimes[clipIdx];
+                _targetClips[clipIdx].EndTime = _oldStartTimes[clipIdx] + _oldDurations[clipIdx];
+                _targetClips[clipIdx].LeftMarginThickness = new Thickness(
+                    _targetClips[clipIdx].StartTime * _scale, 0, 0, 0);
+                _targetClips[clipIdx].Duration = _oldDurations[clipIdx];
+            }
         }
     }
 }
